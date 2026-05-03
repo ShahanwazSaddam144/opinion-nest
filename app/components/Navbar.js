@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import React from "react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const Navbar = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -11,7 +13,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/auth/me", {
+    fetch(`${API_URL}/auth/me`, {
       method: "GET",
       credentials: "include",
     })
@@ -24,10 +26,6 @@ const Navbar = () => {
       })
       .catch(() => {
         setUser(null);
-
-        if (window.location.pathname === "/dashboard") {
-          router.push("/");
-        }
       })
       .finally(() => setLoading(false));
   }, [router]);
@@ -41,8 +39,9 @@ const Navbar = () => {
         .join("")
         .toUpperCase()
     : "";
+
   const handleLogout = async () => {
-    await fetch("http://localhost:5000/api/auth/logout", {
+    await fetch(`${API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -56,7 +55,6 @@ const Navbar = () => {
   return (
     <>
       <nav className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
-        {/* Logo */}
         <h1
           className="text-xl font-bold cursor-pointer"
           onClick={() => router.push("/")}
@@ -64,24 +62,14 @@ const Navbar = () => {
           My App
         </h1>
 
-        {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
-          <button
-            onClick={() => router.push("/")}
-            className="text-sm hover:text-blue-400"
-          >
+          <button onClick={() => router.push("/")} className="text-sm hover:text-blue-400">
             Home
           </button>
-          <button
-            onClick={() => router.push("/about")}
-            className="text-sm hover:text-blue-400"
-          >
+          <button onClick={() => router.push("/about")} className="text-sm hover:text-blue-400">
             About
           </button>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="text-sm hover:text-blue-400"
-          >
+          <button onClick={() => router.push("/dashboard")} className="text-sm hover:text-blue-400">
             Dashboard
           </button>
 
@@ -108,7 +96,6 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Hamburger */}
         <button
           className="md:hidden text-2xl"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -117,7 +104,6 @@ const Navbar = () => {
         </button>
       </nav>
 
-      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden flex flex-col gap-4 px-6 py-4 border-b border-slate-800 bg-black">
           <button onClick={() => router.push("/")}>Home</button>

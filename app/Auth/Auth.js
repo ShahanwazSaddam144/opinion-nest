@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const Auth = () => {
   const router = useRouter();
   const [isSignup, setIsSignup] = useState(true);
@@ -24,9 +26,7 @@ const Auth = () => {
     setLoading(true);
     setMessage("");
 
-    const url = isSignup
-      ? "http://localhost:5000/api/auth/signin"
-      : "http://localhost:5000/api/auth/login";
+    const url = isSignup ? `${API_URL}/auth/signin` : `${API_URL}/auth/login`;
 
     try {
       const res = await fetch(url, {
@@ -61,13 +61,13 @@ const Auth = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        const res = await fetch(`${API_URL}/auth/me`, {
           method: "GET",
           credentials: "include",
         });
 
         if (res.ok) {
-          router.push("/dashboard"); 
+          router.push("/dashboard");
         }
       } catch (err) {
         console.log("Not logged in");

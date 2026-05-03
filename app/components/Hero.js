@@ -3,15 +3,17 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const Hero = () => {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/auth/me", {
+    fetch(`${API_URL}/auth/me`, {
       method: "GET",
-      credentials: "include", 
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
@@ -24,7 +26,7 @@ const Hero = () => {
         setUser(null);
       })
       .finally(() => setLoading(false));
-  }, [router]);
+  }, []);
 
   if (loading) return null;
 
@@ -33,7 +35,8 @@ const Hero = () => {
       <main className="flex flex-col items-center justify-center h-[80vh] text-center px-4">
         {user ? (
           <h2 className="text-3xl font-bold">
-            Welcome back, <span className="text-blue-400">{user.name}</span> 👋
+            Welcome back,{" "}
+            <span className="text-blue-400">{user.name}</span> 👋
           </h2>
         ) : (
           <>
