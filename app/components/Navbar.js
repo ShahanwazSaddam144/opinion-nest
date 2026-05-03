@@ -24,6 +24,10 @@ const Navbar = () => {
       })
       .catch(() => {
         setUser(null);
+
+        if (window.location.pathname === "/dashboard") {
+          router.push("/");
+        }
       })
       .finally(() => setLoading(false));
   }, [router]);
@@ -37,14 +41,16 @@ const Navbar = () => {
         .join("")
         .toUpperCase()
     : "";
-
   const handleLogout = async () => {
     await fetch("http://localhost:5000/api/auth/logout", {
       method: "POST",
-      credentials: "include", 
+      credentials: "include",
     });
+
     setUser(null);
     setMenuOpen(false);
+
+    router.push("/");
   };
 
   return (
@@ -60,13 +66,22 @@ const Navbar = () => {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-6">
-          <button onClick={() => router.push("/")} className="text-sm hover:text-blue-400">
+          <button
+            onClick={() => router.push("/")}
+            className="text-sm hover:text-blue-400"
+          >
             Home
           </button>
-          <button onClick={() => router.push("/about")} className="text-sm hover:text-blue-400">
+          <button
+            onClick={() => router.push("/about")}
+            className="text-sm hover:text-blue-400"
+          >
             About
           </button>
-          <button onClick={() => router.push("/dashboard")} className="text-sm hover:text-blue-400">
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="text-sm hover:text-blue-400"
+          >
             Dashboard
           </button>
 
@@ -117,10 +132,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              <button
-                onClick={handleLogout}
-                className="text-red-400"
-              >
+              <button onClick={handleLogout} className="text-red-400">
                 Logout
               </button>
             </>

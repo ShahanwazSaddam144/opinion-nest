@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 const Auth = () => {
@@ -32,7 +32,7 @@ const Auth = () => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", 
+        credentials: "include",
         body: JSON.stringify(
           isSignup
             ? formData
@@ -47,11 +47,9 @@ const Auth = () => {
       } else {
         setMessage(data.message);
 
-        if (!isSignup) {
-          setTimeout(() => {
-            router.push("/"); 
-          }, 200);
-        }
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 200);
       }
     } catch (err) {
       setMessage("Server not reachable");
@@ -61,23 +59,23 @@ const Auth = () => {
   };
 
   useEffect(() => {
-  const checkAuth = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
+    const checkAuth = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/auth/me", {
+          method: "GET",
+          credentials: "include",
+        });
 
-      if (res.ok) {
-        router.push("/Dashboard");
+        if (res.ok) {
+          router.push("/dashboard"); 
+        }
+      } catch (err) {
+        console.log("Not logged in");
       }
-    } catch (err) {
-      console.log("Not logged in");
-    }
-  };
+    };
 
-  checkAuth();
-}, []);
+    checkAuth();
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
@@ -127,7 +125,9 @@ const Auth = () => {
         </button>
 
         {message && (
-          <p className="text-center text-sm text-blue-400 mt-3">{message}</p>
+          <p className="text-center text-sm text-blue-400 mt-3">
+            {message}
+          </p>
         )}
 
         <p className="text-center text-sm mt-4 text-slate-400">
