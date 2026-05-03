@@ -9,10 +9,9 @@ const Hero = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch user info using cookie-based auth
     fetch("http://localhost:5000/api/auth/me", {
       method: "GET",
-      credentials: "include", // <-- important to send cookies automatically
+      credentials: "include", 
     })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");

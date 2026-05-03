@@ -32,7 +32,7 @@ const Auth = () => {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // <-- send/receive cookies automatically
+        credentials: "include", 
         body: JSON.stringify(
           isSignup
             ? formData
@@ -47,11 +47,9 @@ const Auth = () => {
       } else {
         setMessage(data.message);
 
-        // If login is successful, the backend sets the cookie automatically
         if (!isSignup) {
-          // wait a tiny bit to ensure cookie is set
           setTimeout(() => {
-            router.push("/"); // redirect to homepage/dashboard
+            router.push("/"); 
           }, 200);
         }
       }
@@ -61,6 +59,25 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        router.push("/Dashboard");
+      }
+    } catch (err) {
+      console.log("Not logged in");
+    }
+  };
+
+  checkAuth();
+}, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

@@ -11,10 +11,9 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Fetch user data from backend using cookies
     fetch("http://localhost:5000/api/auth/me", {
       method: "GET",
-      credentials: "include", // <-- important to send cookies
+      credentials: "include",
     })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
@@ -42,7 +41,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     await fetch("http://localhost:5000/api/auth/logout", {
       method: "POST",
-      credentials: "include", // <-- send cookies
+      credentials: "include", 
     });
     setUser(null);
     setMenuOpen(false);
