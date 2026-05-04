@@ -43,7 +43,7 @@ const Hero = () => {
   if (loading) return null;
 
   return (
-    <div className="relative overflow-hidden bg-white min-h-[85vh] flex items-center justify-center px-4">
+    <div className="relative pt-[80px] mt-10 overflow-hidden bg-white min-h-[85vh] flex items-center justify-center px-4">
 
       <style>{`
         @keyframes float {

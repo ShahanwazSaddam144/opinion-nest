@@ -176,7 +176,7 @@ const Navbar = () => {
         </div>
       )}
 
-      <nav className="nav-animate flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-[0_1px_16px_rgba(37,99,235,0.06)] relative">
+      <nav className="fixed top-0 left-0 w-full nav-animate flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 shadow-[0_1px_16px_rgba(37,99,235,0.06)] z-50">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="scan-line" />
         </div>
@@ -215,7 +215,7 @@ const Navbar = () => {
               </div>
 
               <div
-                className={`absolute right-0 mt-3 w-36 bg-white border border-gray-100 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] transform transition-all duration-200 origin-top-right ${
+                className={`absolute right-0 mt-3 w-36 z-9999 bg-white border border-gray-100 rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.08)] transform transition-all duration-200 origin-top-right ${
                   profileOpen
                     ? "opacity-100 scale-100 translate-y-0"
                     : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
