@@ -58,25 +58,35 @@ const Auth = () => {
     }
   };
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch(`${API_URL}/auth/me`, {
-          method: "GET",
-          credentials: "include",
-        });
+useEffect(() => {
+  const checkAuth = async () => {
+    try {
+      const res = await fetch(`${API_URL}/auth/me`, {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (res.ok) {
+      if (res.ok) {
+
+        if (window.location.pathname === "/") {
           router.push("/dashboard");
         }
-      } catch (err) {
-        console.log("Not logged in");
+      } else {
+        if (window.location.pathname === "/dashboard") {
+          router.push("/");
+        }
       }
-    };
+    } catch (err) {
+      console.log("Auth check failed");
 
-    checkAuth();
-  }, [router]);
+      if (window.location.pathname === "/dashboard") {
+        router.push("/");
+      }
+    }
+  };
 
+  checkAuth();
+}, [router]);
   return (
     <div className="min-h-screen flex items-center justify-center">
       <form

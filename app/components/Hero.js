@@ -14,23 +14,8 @@ const images = [
 
 const Hero = () => {
   const router = useRouter();
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    fetch(`${API_URL}/auth/me`, {
-      method: "GET",
-      credentials: "include",
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -39,8 +24,6 @@ const Hero = () => {
 
     return () => clearInterval(interval);
   }, []);
-
-  if (loading) return null;
 
   return (
     <div className="relative pt-[80px] mt-10 overflow-hidden bg-white min-h-[85vh] flex items-center justify-center px-4">
