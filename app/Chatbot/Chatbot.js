@@ -18,36 +18,36 @@ const Chatbot = () => {
     }
   }, [open]);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
+const sendMessage = async () => {
+  if (!input.trim()) return;
 
-    const userMsg = input;
-    setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
-    setInput("");
-    setLoading(true);
+  const userMsg = input;
+  setMessages((prev) => [...prev, { role: "user", text: userMsg }]);
+  setInput("");
+  setLoading(true);
 
-    try {
-      const res = await fetch("https://api.chatbot.buttnetworks.com/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMsg }),
-      });
+  try {
+    const res = await fetch("https://api.chatbot.buttnetworks.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userMsg }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: data.response },
-      ]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "Server error. Try again." },
-      ]);
-    }
+    setMessages((prev) => [
+      ...prev,
+      { role: "bot", text: data.reply },
+    ]);
+  } catch {
+    setMessages((prev) => [
+      ...prev,
+      { role: "bot", text: "Server error. Try again." },
+    ]);
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
