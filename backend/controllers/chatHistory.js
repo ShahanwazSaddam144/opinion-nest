@@ -38,4 +38,22 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/chat-history", authMiddleware, async (req, res) => {
+  try {
+    const history = await chatHistory.find({ user: req.user._id });
+
+    res.status(200).json({
+      success: true,
+      data: history,
+    });
+
+  } catch (err) {
+    console.error("Chat History Fetch Error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+});
+
 module.exports = router;

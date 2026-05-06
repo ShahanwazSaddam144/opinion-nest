@@ -13,6 +13,10 @@ import {
 } from "recharts";
 import Header from "./Header";
 import { fadeUp } from "./animations";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
 
 const ModelUi = () => {
   const [form, setForm] = useState({ name: "", industry: "", description: "" });
@@ -55,8 +59,19 @@ const ModelUi = () => {
     setLoading(false);
   };
 
+  const chartSlides = result ? [
+    { title: "Historical Performance", subtitle: "Past 6 years", data: result.past_yearly_analysis },
+    { title: "Growth Projection", subtitle: "Next 6 years", data: result.yearly_analysis },
+  ] : [];
+
+  const scaleSlides = result ? [
+    { title: "Small Scale", data: result.scale?.small, accent: "#64748b", featured: false },
+    { title: "Medium Scale", data: result.scale?.medium, accent: "#2563eb", featured: true },
+    { title: "Large Scale", data: result.scale?.large, accent: "#0f172a", featured: false },
+  ] : [];
+
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", minHeight: "100vh", background: "#f8f9fb", padding: "48px 32px" }}>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", minHeight: "100vh", background: "#f8f9fb", padding: "48px 16px" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
       <div style={{ maxWidth: 860, margin: "0 auto" }}>
@@ -64,10 +79,10 @@ const ModelUi = () => {
         <Header />
 
         <motion.div initial="hidden" animate="show" variants={fadeUp} custom={1}
-          style={{ background: "#fff", borderRadius: 20, padding: "36px 40px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)", marginBottom: 32 }}>
+          style={{ background: "#fff", borderRadius: 20, padding: "28px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)", marginBottom: 32 }}>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
               <Field>
                 <Label>Business Name</Label>
                 <Input name="name" placeholder="e.g. NovaBrew" onChange={handleChange} />
@@ -129,10 +144,10 @@ const ModelUi = () => {
             >
 
               <motion.div variants={fadeUp} initial="hidden" animate="show" custom={0}
-                style={{ background: "#fff", borderRadius: 20, padding: "32px 40px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
+                style={{ background: "#fff", borderRadius: 20, padding: "28px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
                 <SectionLabel>Overview</SectionLabel>
                 <p style={{ fontSize: 15, color: "#475569", lineHeight: 1.7, marginBottom: 28, fontWeight: 300 }}>{result.description}</p>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 12 }}>
                   <StatCard label="Investment" value={result.investment} color="#2563eb" />
                   <StatCard label="Workers" value={result.workers} color="#0f172a" />
                   <StatCard label="Profit Range" value={result.profit?.range} color="#16a34a" />
@@ -140,21 +155,40 @@ const ModelUi = () => {
                 </div>
               </motion.div>
 
-              <motion.div variants={fadeUp} initial="hidden" animate="show" custom={1}
-                style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
-
-                <ChartCard title="Historical Performance" subtitle="Past 6 years" data={result.past_yearly_analysis} />
-                <ChartCard title="Growth Projection" subtitle="Next 6 years" data={result.yearly_analysis} />
+              <motion.div variants={fadeUp} initial="hidden" animate="show" custom={1}>
+                <Swiper
+                  modules={[Pagination]}
+                  spaceBetween={16}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  breakpoints={{ 768: { slidesPerView: 2 } }}
+                  style={{ paddingBottom: 36 }}
+                >
+                  {chartSlides.map((slide, i) => (
+                    <SwiperSlide key={i}>
+                      <ChartCard title={slide.title} subtitle={slide.subtitle} data={slide.data} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
               </motion.div>
 
               <motion.div variants={fadeUp} initial="hidden" animate="show" custom={2}
-                style={{ background: "#fff", borderRadius: 20, padding: "32px 40px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
+                style={{ background: "#fff", borderRadius: 20, padding: "28px 20px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
                 <SectionLabel>Scale Comparison</SectionLabel>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20, marginTop: 8 }}>
-                  <ScaleCard title="Small Scale" data={result.scale?.small} accent="#64748b" />
-                  <ScaleCard title="Medium Scale" data={result.scale?.medium} accent="#2563eb" featured />
-                  <ScaleCard title="Large Scale" data={result.scale?.large} accent="#0f172a" />
-                </div>
+                <Swiper
+                  modules={[Pagination]}
+                  spaceBetween={16}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  breakpoints={{ 768: { slidesPerView: 3 } }}
+                  style={{ paddingBottom: 36, marginTop: 8 }}
+                >
+                  {scaleSlides.map((slide, i) => (
+                    <SwiperSlide key={i}>
+                      <ScaleCard title={slide.title} data={slide.data} accent={slide.accent} featured={slide.featured} />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
               </motion.div>
 
             </motion.div>
@@ -184,6 +218,8 @@ const ModelUi = () => {
         <style>{`
           @keyframes spin { to { transform: rotate(360deg); } }
           input::placeholder, textarea::placeholder { color: #94a3b8; }
+          .swiper-pagination-bullet { background: #cbd5e1; opacity: 1; }
+          .swiper-pagination-bullet-active { background: #2563eb; }
         `}</style>
       </div>
     </div>
@@ -228,7 +264,7 @@ const StatCard = ({ label, value, color }) => (
 );
 
 const ChartCard = ({ title, subtitle, data }) => (
-  <div style={{ background: "#fff", borderRadius: 20, padding: "28px 32px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
+  <div style={{ background: "#fff", borderRadius: 20, padding: "28px 24px", boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)" }}>
     <SectionLabel>{subtitle}</SectionLabel>
     <h3 style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", margin: "0 0 24px", letterSpacing: "-0.01em" }}>{title}</h3>
     <div style={{ height: 220 }}>
@@ -262,7 +298,7 @@ const LegendItem = ({ color, label }) => (
 
 const ScaleCard = ({ title, data, accent, featured }) => (
   <div style={{
-    borderRadius: 16, padding: "24px 24px",
+    borderRadius: 16, padding: "24px",
     background: featured ? "#eff6ff" : "#f8fafd",
     outline: featured ? "2px solid #2563eb" : "none",
     position: "relative", transition: "transform 0.2s",
@@ -272,6 +308,7 @@ const ScaleCard = ({ title, data, accent, featured }) => (
         position: "absolute", top: -10, left: "50%", transform: "translateX(-50%)",
         background: "#2563eb", color: "#fff", fontSize: 10, fontWeight: 600,
         padding: "3px 12px", borderRadius: 20, letterSpacing: "0.08em", textTransform: "uppercase",
+       marginTop: 10,
       }}>Recommended</span>
     )}
     <h4 style={{ fontSize: 14, fontWeight: 600, color: accent, marginBottom: 16, letterSpacing: "-0.01em" }}>{title}</h4>
