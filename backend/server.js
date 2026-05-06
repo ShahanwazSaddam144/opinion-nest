@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const Auth = require("./controllers/auth");
+const chatHistory = require("./controllers/chatHistory");
 
 dotenv.config();
 
@@ -33,10 +34,10 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(limiter);
 
 // Routes
-app.use("/api/auth", Auth);
+app.use("/api/auth", Auth, limiter);
+app.use("/api", chatHistory, limiter)
 
 // Mongoose connect
 mongoose

@@ -201,6 +201,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-8">
           <NavButton label="Analyze Idea" path="/dashboard" delay="250ms" />
           <NavButton label="Market Trends" path="/trends" delay="300ms" />
+          <NavButton label="Chat History" path="/chatHistory" delay="350ms" />
           <NavButton label="AI Insights" path="/insights" delay="350ms" />
           <NavButton label="Reports" path="/reports" delay="400ms" />
 
@@ -316,6 +317,7 @@ const Navbar = () => {
           {[
             { label: "Analyze Idea", path: "/dashboard" },
             { label: "Market Trends", path: "/trends" },
+            { label: "chatHistory", path: "/chatHistory" },
             { label: "AI Insights", path: "/insights" },
             { label: "Reports", path: "/reports" },
           ].map(({ label, path }, i) => (

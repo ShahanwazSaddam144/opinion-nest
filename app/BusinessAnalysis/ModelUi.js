@@ -35,6 +35,20 @@ const ModelUi = () => {
       const data = await res.json();
       if (data.error) throw new Error(data.error);
       setResult(data);
+
+      await fetch("http://localhost:5000/api/chat-history", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          business_name: form.name,
+          business_industry: form.industry,
+          business_description: form.description,
+        }),
+        credentials: "include",
+      });
+
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
