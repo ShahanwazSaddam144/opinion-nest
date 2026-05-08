@@ -5,7 +5,12 @@ const { authMiddleware } = require("../middleware/authMiddleware");
 
 router.post("/chat-history", authMiddleware, async (req, res) => {
   try {
-    const { business_name, business_industry, business_description } = req.body;
+    const {
+      business_name,
+      business_industry,
+      business_description,
+      ai_result,
+    } = req.body;
 
     if (!business_name || !business_industry || !business_description) {
       return res.status(400).json({
@@ -17,9 +22,30 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
     const newChatHistory = new chatHistory({
       user: req.user._id,
       email: req.user.email,
+
       business_name,
       business_industry,
       business_description,
+
+      ai_result: {
+        overview: ai_result?.overview,
+        investment: ai_result?.investment,
+        workers: ai_result?.workers,
+        profit_range: ai_result?.profit_range,
+        risk: ai_result?.risk,
+
+        past_yearly_analysis:
+          ai_result?.past_yearly_analysis || [],
+
+        yearly_analysis:
+          ai_result?.yearly_analysis || [],
+
+        scale: {
+          small: ai_result?.scale?.small || {},
+          medium: ai_result?.scale?.medium || {},
+          large: ai_result?.scale?.large || {},
+        },
+      },
     });
 
     await newChatHistory.save();
@@ -31,6 +57,7 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("Chat History Error:", err);
+
     res.status(500).json({
       success: false,
       message: "Server Error",
@@ -41,7 +68,9 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
 router.get("/chat-history", authMiddleware, async (req, res) => {
   try {
-    const history = await chatHistory.find({ user: req.user._id });
+    const history = await chatHistory.find({
+      user: req.user._id,
+    });
 
     res.status(200).json({
       success: true,
@@ -50,6 +79,7 @@ router.get("/chat-history", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("Chat History Fetch Error:", err);
+
     res.status(500).json({
       success: false,
       message: "Server Error",
@@ -79,6 +109,7 @@ router.delete("/chat-history/:id", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("Delete Chat History Error:", err);
+
     res.status(500).json({
       success: false,
       message: "Server Error",
@@ -89,7 +120,9 @@ router.delete("/chat-history/:id", authMiddleware, async (req, res) => {
 
 router.delete("/chat-history", authMiddleware, async (req, res) => {
   try {
-    await chatHistory.deleteMany({ user: req.user._id });
+    await chatHistory.deleteMany({
+      user: req.user._id,
+    });
 
     res.status(200).json({
       success: true,
@@ -98,6 +131,7 @@ router.delete("/chat-history", authMiddleware, async (req, res) => {
 
   } catch (err) {
     console.error("Delete All Chat History Error:", err);
+
     res.status(500).json({
       success: false,
       message: "Server Error",
