@@ -101,7 +101,7 @@ const Hero = () => {
             </Link>
 
             <button
-              onClick={() => router.push("/about")}
+              onClick={() => router.push("/learnMore")}
               className="px-6 py-3 border border-gray-300 rounded-xl hover:border-blue-500 hover:text-blue-600 transition"
             >
               Learn More
