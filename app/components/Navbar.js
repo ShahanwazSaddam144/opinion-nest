@@ -199,8 +199,8 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-8">
-          <NavButton label="Analyze Idea" path="/dashboard" delay="250ms" />
-          <NavButton label="Market Trends" path="/trends" delay="300ms" />
+          <NavButton label="Analyze Idea" path="#analyzeIdea" delay="250ms" />
+          <NavButton label="Market Trends" path="#marketTrends" delay="300ms" />
           <NavButton label="Chat History" path="/chatHistory" delay="350ms" />
           <NavButton label="AI Insights" path="/insights" delay="350ms" />
           <NavButton label="Reports" path="/reports" delay="400ms" />
@@ -315,8 +315,8 @@ const Navbar = () => {
           <hr className="border-gray-100" />
 
           {[
-            { label: "Analyze Idea", path: "/dashboard" },
-            { label: "Market Trends", path: "/trends" },
+            { label: "Analyze Idea", path: "analyzeIdea" },
+            { label: "Market Trends", path: "#marketTrends" },
             { label: "chatHistory", path: "/chatHistory" },
             { label: "AI Insights", path: "/insights" },
             { label: "Reports", path: "/reports" },
