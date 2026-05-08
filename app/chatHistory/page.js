@@ -256,43 +256,110 @@ const ChatHistory = () => {
         </div>
       </div>
 
-      {selectedHistory && (
-        <div className="fixed inset-0 z-[60] bg-white/80 backdrop-blur-xl flex justify-center items-center modal-backdrop">
-          <div className="w-full max-w-5xl bg-white rounded-3xl p-8 shadow-2xl modal-card">
-            <div className="flex justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                {selectedHistory.business_name}
-              </h2>
-              <button
-                onClick={() => setSelectedHistory(null)}
-                className="text-gray-400 hover:text-gray-700 transition-colors duration-200"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className="text-gray-500 mb-6">{selectedHistory.business_description}</p>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {historyCharts.map((c, i) => (
-                <div key={i} className="bg-gray-50 p-6 rounded-2xl">
-                  <h3 className="font-semibold text-gray-900">{c.title}</h3>
-                  <p className="text-sm text-gray-400">{c.subtitle}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-4 mt-6">
-              {historyScales.map((s, i) => (
-                <div key={i} className="bg-gray-50 p-4 rounded-2xl">
-                  <h4 className="font-semibold text-gray-900">{s.title}</h4>
-                  <p className="text-xs text-gray-500 mt-2">{JSON.stringify(s.data)}</p>
-                </div>
-              ))}
-            </div>
+{selectedHistory && (
+  <div
+    className="fixed inset-0 z-[60] flex justify-center items-center modal-backdrop"
+    style={{ background: "rgba(0,0,0,0.06)", backdropFilter: "blur(16px)" }}
+    onClick={() => setSelectedHistory(null)}
+  >
+    <div
+      className="bg-white rounded-3xl shadow-2xl modal-card w-full max-w-3xl mx-4 overflow-hidden"
+      style={{ maxHeight: "85vh", overflowY: "auto" }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="px-8 pt-8 pb-6">
+        <div className="flex justify-between items-start gap-4 mb-1">
+          <div>
+            <span className="text-xs text-blue-600 uppercase tracking-widest font-medium">
+              {selectedHistory.business_industry}
+            </span>
+            <h2 className="text-2xl font-bold text-gray-900 mt-1 tracking-tight">
+              {selectedHistory.business_name}
+            </h2>
           </div>
+          <button
+            onClick={() => setSelectedHistory(null)}
+            className="text-gray-300 hover:text-gray-600 transition-colors duration-200 mt-1 shrink-0"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          </button>
         </div>
-      )}
+
+        <div className="mt-4 h-px bg-gradient-to-r from-blue-600 via-blue-300 to-transparent w-24" />
+
+        <p className="mt-5 text-sm text-gray-400 leading-relaxed">
+          {selectedHistory.business_description}
+        </p>
+      </div>
+
+      <div className="px-8 pb-4">
+        <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
+          Performance
+        </p>
+        <div className="grid md:grid-cols-2 gap-4">
+          {historyCharts.map((c, i) => (
+            <div key={i} className="bg-gray-50 rounded-2xl p-5">
+              <p className="text-xs text-blue-600 uppercase tracking-widest font-medium">
+                {c.subtitle}
+              </p>
+              <h3 className="text-gray-900 font-semibold mt-1">{c.title}</h3>
+              {c.data && c.data.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  {c.data.map((entry, j) => (
+                    <div key={j} className="flex justify-between items-center">
+                      <span className="text-xs text-gray-400">{entry.year}</span>
+                      <div className="flex-1 mx-3 h-1 rounded-full bg-gray-100 overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-blue-500"
+                          style={{
+                            width: `${Math.min(100, ((entry.revenue || entry.value || 0) / Math.max(...c.data.map(d => d.revenue || d.value || 1))) * 100)}%`,
+                            transition: `width 0.6s ease ${j * 80}ms`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs text-gray-500 font-medium">
+                        {entry.revenue || entry.value || "—"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-4 text-xs text-gray-300">No data available</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="px-8 pb-8 mt-2">
+        <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
+          Scale Projections
+        </p>
+        <div className="grid md:grid-cols-3 gap-4">
+          {historyScales.map((s, i) => (
+            <div key={i} className="bg-gray-50 rounded-2xl p-5">
+              <h4 className="text-gray-900 font-semibold text-sm">{s.title}</h4>
+              {s.data ? (
+                <div className="mt-3 space-y-2">
+                  {Object.entries(s.data).map(([key, val]) => (
+                    <div key={key} className="flex justify-between items-center">
+                      <span className="text-xs text-gray-400 capitalize">{key}</span>
+                      <span className="text-xs text-gray-600 font-medium">{String(val)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-xs text-gray-300">No data available</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
