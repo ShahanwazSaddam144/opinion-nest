@@ -203,7 +203,7 @@ const Navbar = () => {
           <NavButton label="Market Trends" path="#marketTrends" delay="300ms" />
           <NavButton label="Chat History" path="/chatHistory" delay="350ms" />
           <NavButton label="AI Insights" path="/insights" delay="350ms" />
-          <NavButton label="Reports" path="/reports" delay="400ms" />
+          <NavButton label="Reports" path="#reports" delay="400ms" />
 
           {user ? (
             <div className="animate-fade-up opacity-0 [animation-fill-mode:forwards] [animation-delay:450ms] relative z-50">
@@ -319,7 +319,7 @@ const Navbar = () => {
             { label: "Market Trends", path: "#marketTrends" },
             { label: "chatHistory", path: "/chatHistory" },
             { label: "AI Insights", path: "/insights" },
-            { label: "Reports", path: "/reports" },
+            { label: "Reports", path: "#reports" },
           ].map(({ label, path }, i) => (
             <button
               key={path}

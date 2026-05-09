@@ -7,6 +7,7 @@ import Chatbot from "../Chatbot/Chatbot";
 import MainBusinessPage from "../BusinessAnalysis/Main";
 import MarketTrends from "../components/marketTrends";
 import Footer from "../components/Footer";
+import ReportsPage from "../components/reports/Reports";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -48,6 +49,7 @@ const Dashboard = () => {
         <Chatbot />
         <MainBusinessPage />
         <MarketTrends />
+        <ReportsPage />
         <Footer />
         </>
     )
