@@ -44,7 +44,7 @@ const ModelUi = () => {
       if (data.error) throw new Error(data.error);
       setResult(data);
 
-      await fetch("http://localhost:5000/api/chat-history", {
+      await fetch("https://api.business-model.buttnetworks.com/api/chat-history", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
