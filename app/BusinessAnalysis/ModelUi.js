@@ -521,80 +521,166 @@ const StatCard = ({ label, value, color }) => (
   </div>
 );
 
-const ChartCard = ({ title, subtitle, data }) => (
-  <div
-    style={{
-      background: "#fff",
-      borderRadius: 20,
-      padding: "28px 24px",
-      boxShadow: "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
-    }}
-  >
-    <SectionLabel>{subtitle}</SectionLabel>
-    <h3
+const ChartCard = ({ title, subtitle, data }) => {
+  const R = 28, STROKE = 5.5;
+  const CIRC = 2 * Math.PI * R;
+  const INNER_R = R - STROKE - 2;
+  const INNER_CIRC = 2 * Math.PI * INNER_R;
+
+  const max = data?.length
+    ? Math.max(...data.map((d) => Math.max(d.revenue || 0, d.profit || 0)))
+    : 100;
+
+  return (
+    <div
       style={{
-        fontSize: 16,
-        fontWeight: 600,
-        color: "#0f172a",
-        margin: "0 0 24px",
-        letterSpacing: "-0.01em",
+        background: "#fff",
+        borderRadius: 20,
+        padding: "28px 24px",
+        boxShadow:
+          "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
       }}
     >
-      {title}
-    </h3>
-    <div style={{ height: 220 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-          <XAxis
-            dataKey="year"
-            tick={{ fontSize: 11, fill: "#94a3b8", fontFamily: "DM Sans" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 11, fill: "#94a3b8", fontFamily: "DM Sans" }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            contentStyle={{
-              borderRadius: 10,
-              border: "none",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-              fontSize: 13,
-              fontFamily: "DM Sans",
-            }}
-            cursor={{ stroke: "#e2e8f0" }}
-          />
-          <Line
-            type="monotone"
-            dataKey="revenue"
-            stroke="#2563eb"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: "#2563eb" }}
-          />
-          <Line
-            type="monotone"
-            dataKey="profit"
-            stroke="#16a34a"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, fill: "#16a34a" }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <SectionLabel>{subtitle}</SectionLabel>
+      <h3
+        style={{
+          fontSize: 16,
+          fontWeight: 600,
+          color: "#0f172a",
+          margin: "0 0 20px",
+          letterSpacing: "-0.01em",
+        }}
+      >
+        {title}
+      </h3>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 20,
+          flexWrap: "wrap",
+          padding: "8px 0 16px",
+        }}
+      >
+        {(data || []).map((d) => {
+          const rPct = Math.round((d.revenue / max) * 100);
+          const pPct = Math.round((d.profit / max) * 100);
+          const rOff = CIRC - (rPct / 100) * CIRC;
+          const pOff = INNER_CIRC - (pPct / 100) * INNER_CIRC;
+          const size = (R + STROKE) * 2 + 4;
+          const cx = size / 2;
+
+          return (
+            <div
+              key={d.year}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <div style={{ position: "relative", width: size, height: size }}>
+                <svg
+                  width={size}
+                  height={size}
+                  style={{ transform: "rotate(-90deg)", display: "block" }}
+                >
+                  {/* Track outer */}
+                  <circle
+                    cx={cx}
+                    cy={cx}
+                    r={R}
+                    fill="none"
+                    stroke="#f1f5f9"
+                    strokeWidth={STROKE + 2}
+                  />
+                  {/* Revenue ring */}
+                  <circle
+                    cx={cx}
+                    cy={cx}
+                    r={R}
+                    fill="none"
+                    stroke="#2563eb"
+                    strokeWidth={STROKE}
+                    strokeDasharray={CIRC}
+                    strokeDashoffset={rOff}
+                    strokeLinecap="round"
+                    style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
+                  />
+                  {/* Track inner */}
+                  <circle
+                    cx={cx}
+                    cy={cx}
+                    r={INNER_R}
+                    fill="none"
+                    stroke="#dcfce7"
+                    strokeWidth={STROKE - 1}
+                  />
+                  {/* Profit ring */}
+                  <circle
+                    cx={cx}
+                    cy={cx}
+                    r={INNER_R}
+                    fill="none"
+                    stroke="#16a34a"
+                    strokeWidth={STROKE - 1}
+                    strokeDasharray={INNER_CIRC}
+                    strokeDashoffset={pOff}
+                    strokeLinecap="round"
+                    style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
+                  />
+                </svg>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1,
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#2563eb",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {rPct}%
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 500,
+                      color: "#16a34a",
+                      lineHeight: 1,
+                    }}
+                  >
+                    {pPct}%
+                  </span>
+                </div>
+              </div>
+              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400 }}>
+                {d.year}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{ display: "flex", gap: 20, justifyContent: "center" }}>
+        <LegendItem color="#2563eb" label="Revenue" />
+        <LegendItem color="#16a34a" label="Profit" />
+      </div>
     </div>
-    <div style={{ display: "flex", gap: 20, marginTop: 16 }}>
-      <LegendItem color="#2563eb" label="Revenue" />
-      <LegendItem color="#16a34a" label="Profit" />
-    </div>
-  </div>
-);
+  );
+};
 
 const LegendItem = ({ color, label }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
