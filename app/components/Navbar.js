@@ -202,7 +202,7 @@ const Navbar = () => {
           <NavButton label="Analyze Idea" path="#analyzeIdea" delay="250ms" />
           <NavButton label="Market Trends" path="#marketTrends" delay="300ms" />
           <NavButton label="Chat History" path="/chatHistory" delay="350ms" />
-          <NavButton label="AI Insights" path="/insights" delay="350ms" />
+          <NavButton label="AI Insights" path="#ai-insights" delay="350ms" />
           <NavButton label="Reports" path="#reports" delay="400ms" />
 
           {user ? (
@@ -318,7 +318,7 @@ const Navbar = () => {
             { label: "Analyze Idea", path: "analyzeIdea" },
             { label: "Market Trends", path: "#marketTrends" },
             { label: "chatHistory", path: "/chatHistory" },
-            { label: "AI Insights", path: "/insights" },
+            { label: "AI Insights", path: "#ai-insights" },
             { label: "Reports", path: "#reports" },
           ].map(({ label, path }, i) => (
             <button

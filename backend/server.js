@@ -18,7 +18,7 @@ app.use(cookieParser());
 
 
 app.use(cors({
-  origin: "https://opinion-nest.buttnetworks.com", 
+  origin: "http://localhost:3000", 
   credentials: true
 }));
 
