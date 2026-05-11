@@ -26,6 +26,7 @@ const ChatHistory = () => {
           method: "GET",
           credentials: "include",
         });
+
         if (res.ok) {
           const data = await res.json();
           setUser(data);
@@ -38,18 +39,22 @@ const ChatHistory = () => {
         setLoading(false);
       }
     };
+
     checkAuth();
   }, []);
 
   useEffect(() => {
     if (!user) return;
+
     const fetchHistory = async () => {
       setHistoryLoading(true);
+
       try {
         const res = await fetch(`${API_URL}/chat-history`, {
           method: "GET",
           credentials: "include",
         });
+
         if (res.ok) {
           const data = await res.json();
           setHistory(data.data || []);
@@ -61,19 +66,28 @@ const ChatHistory = () => {
         setTimeout(() => setMounted(true), 50);
       }
     };
+
     fetchHistory();
   }, [user]);
 
   const handleDelete = async () => {
     if (!deleteTarget) return;
+
     setDeleting(true);
+
     try {
-      const res = await fetch(`${API_URL}/chat-history/${deleteTarget._id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${API_URL}/chat-history/${deleteTarget._id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+
       if (res.ok) {
-        setHistory((prev) => prev.filter((h) => h._id !== deleteTarget._id));
+        setHistory((prev) =>
+          prev.filter((h) => h._id !== deleteTarget._id)
+        );
       }
     } finally {
       setDeleting(false);
@@ -83,11 +97,13 @@ const ChatHistory = () => {
 
   const handleDeleteAll = async () => {
     setDeleting(true);
+
     try {
       const res = await fetch(`${API_URL}/chat-history`, {
         method: "DELETE",
         credentials: "include",
       });
+
       if (res.ok) {
         setHistory([]);
         setVisibleCount(6);
@@ -100,6 +116,7 @@ const ChatHistory = () => {
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
+
     return d.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -110,6 +127,7 @@ const ChatHistory = () => {
   if (loading) return null;
 
   const visible = history.slice(0, visibleCount);
+
   const expanded = visibleCount >= history.length;
 
   return (
@@ -121,13 +139,23 @@ const ChatHistory = () => {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+
         @keyframes modalSlideUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+          from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.97);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
         }
+
         .modal-backdrop {
           animation: modalFadeIn 0.22s ease;
         }
+
         .modal-card {
           animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -137,10 +165,14 @@ const ChatHistory = () => {
         <div className="max-w-6xl mx-auto">
           <div className="mb-12 flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-4xl font-bold text-gray-900">Chat History</h1>
+              <h1 className="text-4xl font-bold text-gray-900">
+                Chat History
+              </h1>
+
               <p className="mt-2 text-gray-400 text-sm">
                 {history.length} sessions recorded
               </p>
+
               <div className="mt-4 h-px bg-gradient-to-r from-blue-600 via-blue-300 to-transparent w-32" />
             </div>
 
@@ -157,13 +189,19 @@ const ChatHistory = () => {
           {historyLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl bg-gray-50 h-48 animate-pulse" />
+                <div
+                  key={i}
+                  className="rounded-2xl bg-gray-50 h-48 animate-pulse"
+                />
               ))}
             </div>
           ) : history.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <div className="text-5xl opacity-20">💬</div>
-              <p className="text-gray-300 mt-4">No history yet</p>
+
+              <p className="text-gray-300 mt-4">
+                No history yet
+              </p>
             </div>
           ) : (
             <>
@@ -174,7 +212,9 @@ const ChatHistory = () => {
                     className="group bg-gray-50 rounded-2xl p-6 hover:bg-gray-100 transition"
                     style={{
                       opacity: mounted ? 1 : 0,
-                      transform: mounted ? "translateY(0)" : "translateY(20px)",
+                      transform: mounted
+                        ? "translateY(0)"
+                        : "translateY(20px)",
                       transition: `all 0.4s ease ${i * 60}ms`,
                     }}
                   >
@@ -183,6 +223,7 @@ const ChatHistory = () => {
                         <span className="text-xs text-blue-600 uppercase">
                           {item.business_industry}
                         </span>
+
                         <h2 className="text-gray-900 font-semibold">
                           {item.business_name}
                         </h2>
@@ -192,10 +233,29 @@ const ChatHistory = () => {
                         onClick={() => setDeleteTarget(item)}
                         className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-600 transition-all duration-200"
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                          <path d="M3 6h18" stroke="currentColor" strokeWidth="2" />
-                          <path d="M8 6V4h8v2" stroke="currentColor" strokeWidth="2" />
-                          <path d="M19 6l-1 14H6L5 6" stroke="currentColor" strokeWidth="2" />
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <path
+                            d="M3 6h18"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+
+                          <path
+                            d="M8 6V4h8v2"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
+
+                          <path
+                            d="M19 6l-1 14H6L5 6"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -203,6 +263,20 @@ const ChatHistory = () => {
                     <p className="mt-3 text-gray-400 text-sm line-clamp-3">
                       {item.business_description}
                     </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-600 text-[10px] uppercase">
+                        {item.ai_result?.investment}
+                      </span>
+
+                      <span className="px-2 py-1 rounded-full bg-green-50 text-green-600 text-[10px] uppercase">
+                        {item.ai_result?.profit_range}
+                      </span>
+
+                      <span className="px-2 py-1 rounded-full bg-red-50 text-red-500 text-[10px] uppercase">
+                        {item.ai_result?.risk}
+                      </span>
+                    </div>
 
                     <div className="mt-5 flex justify-between items-center">
                       <span className="text-xs text-gray-300">
@@ -212,22 +286,44 @@ const ChatHistory = () => {
                       <button
                         onClick={() => {
                           setSelectedHistory(item);
+
                           setHistoryCharts([
                             {
                               title: "Historical Performance",
                               subtitle: "Past 6 years",
-                              data: item.ai_result?.past_yearly_analysis || [],
+                              data:
+                                item.ai_result?.past_yearly_analysis?.data || [],
+                              summary:
+                                item.ai_result?.past_yearly_analysis
+                                  ?.summary || "",
                             },
+
                             {
                               title: "Growth Projection",
                               subtitle: "Next 6 years",
-                              data: item.ai_result?.yearly_analysis || [],
+                              data:
+                                item.ai_result?.yearly_analysis || [],
                             },
                           ]);
+
                           setHistoryScales([
-                            { title: "Small Scale", data: item.ai_result?.scale?.small },
-                            { title: "Medium Scale", data: item.ai_result?.scale?.medium },
-                            { title: "Large Scale", data: item.ai_result?.scale?.large },
+                            {
+                              title: "Small Scale",
+                              data:
+                                item.ai_result?.scale?.small,
+                            },
+
+                            {
+                              title: "Medium Scale",
+                              data:
+                                item.ai_result?.scale?.medium,
+                            },
+
+                            {
+                              title: "Large Scale",
+                              data:
+                                item.ai_result?.scale?.large,
+                            },
                           ]);
                         }}
                         className="text-xs text-blue-600 hover:text-blue-700 transition-colors duration-200"
@@ -243,7 +339,9 @@ const ChatHistory = () => {
                 <div className="mt-10 flex justify-center">
                   <button
                     onClick={() =>
-                      expanded ? setVisibleCount(6) : setVisibleCount(history.length)
+                      expanded
+                        ? setVisibleCount(6)
+                        : setVisibleCount(history.length)
                     }
                     className="text-sm text-gray-400 hover:text-blue-600 transition-colors duration-200"
                   >
@@ -256,131 +354,307 @@ const ChatHistory = () => {
         </div>
       </div>
 
-{selectedHistory && (
-  <div
-    className="fixed inset-0 z-[60] flex justify-center items-center modal-backdrop"
-    style={{ background: "rgba(0,0,0,0.06)", backdropFilter: "blur(16px)" }}
-    onClick={() => setSelectedHistory(null)}
-  >
-    <div
-      className="bg-white rounded-3xl shadow-2xl modal-card w-full max-w-3xl mx-4 overflow-hidden"
-      style={{ maxHeight: "85vh", overflowY: "auto" }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="px-8 pt-8 pb-6">
-        <div className="flex justify-between items-start gap-4 mb-1">
-          <div>
-            <span className="text-xs text-blue-600 uppercase tracking-widest font-medium">
-              {selectedHistory.business_industry}
-            </span>
-            <h2 className="text-2xl font-bold text-gray-900 mt-1 tracking-tight">
-              {selectedHistory.business_name}
-            </h2>
-          </div>
-          <button
-            onClick={() => setSelectedHistory(null)}
-            className="text-gray-300 hover:text-gray-600 transition-colors duration-200 mt-1 shrink-0"
+      {selectedHistory && (
+        <div
+          className="fixed inset-0 z-[60] flex justify-center items-center modal-backdrop"
+          style={{
+            background: "rgba(0,0,0,0.06)",
+            backdropFilter: "blur(16px)",
+          }}
+          onClick={() => setSelectedHistory(null)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-2xl modal-card w-full max-w-3xl mx-4 overflow-hidden"
+            style={{
+              maxHeight: "85vh",
+              overflowY: "auto",
+            }}
+            onClick={(e) => e.stopPropagation()}
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
+            <div className="px-8 pt-8 pb-6">
+              <div className="flex justify-between items-start gap-4 mb-1">
+                <div>
+                  <span className="text-xs text-blue-600 uppercase tracking-widest font-medium">
+                    {selectedHistory.business_industry}
+                  </span>
 
-        <div className="mt-4 h-px bg-gradient-to-r from-blue-600 via-blue-300 to-transparent w-24" />
+                  <h2 className="text-2xl font-bold text-gray-900 mt-1 tracking-tight">
+                    {selectedHistory.business_name}
+                  </h2>
+                </div>
 
-        <p className="mt-5 text-sm text-gray-400 leading-relaxed">
-          {selectedHistory.business_description}
-        </p>
-      </div>
+                <button
+                  onClick={() => setSelectedHistory(null)}
+                  className="text-gray-300 hover:text-gray-600 transition-colors duration-200 mt-1 shrink-0"
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M18 6L6 18M6 6l12 12"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+              </div>
 
-      <div className="px-8 pb-4">
-        <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
-          Performance
-        </p>
-        <div className="grid md:grid-cols-2 gap-4">
-          {historyCharts.map((c, i) => (
-            <div key={i} className="bg-gray-50 rounded-2xl p-5">
-              <p className="text-xs text-blue-600 uppercase tracking-widest font-medium">
-                {c.subtitle}
+              <div className="mt-4 h-px bg-gradient-to-r from-blue-600 via-blue-300 to-transparent w-24" />
+
+              <p className="mt-5 text-sm text-gray-400 leading-relaxed">
+                {selectedHistory.business_description}
               </p>
-              <h3 className="text-gray-900 font-semibold mt-1">{c.title}</h3>
-              {c.data && c.data.length > 0 ? (
-                <div className="mt-4 space-y-2">
-                  {c.data.map((entry, j) => (
-                    <div key={j} className="flex justify-between items-center">
-                      <span className="text-xs text-gray-400">{entry.year}</span>
-                      <div className="flex-1 mx-3 h-1 rounded-full bg-gray-100 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-blue-500"
-                          style={{
-                            width: `${Math.min(100, ((entry.revenue || entry.value || 0) / Math.max(...c.data.map(d => d.revenue || d.value || 1))) * 100)}%`,
-                            transition: `width 0.6s ease ${j * 80}ms`,
-                          }}
-                        />
-                      </div>
-                      <span className="text-xs text-gray-500 font-medium">
-                        {entry.revenue || entry.value || "—"}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-4 text-xs text-gray-300">No data available</p>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
 
-      <div className="px-8 pb-8 mt-2">
-        <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
-          Scale Projections
-        </p>
-        <div className="grid md:grid-cols-3 gap-4">
-          {historyScales.map((s, i) => (
-            <div key={i} className="bg-gray-50 rounded-2xl p-5">
-              <h4 className="text-gray-900 font-semibold text-sm">{s.title}</h4>
-              {s.data ? (
-                <div className="mt-3 space-y-2">
-                  {Object.entries(s.data).map(([key, val]) => (
-                    <div key={key} className="flex justify-between items-center">
-                      <span className="text-xs text-gray-400 capitalize">{key}</span>
-                      <span className="text-xs text-gray-600 font-medium">{String(val)}</span>
-                    </div>
-                  ))}
+              <div className="mt-8">
+                <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
+                  AI Overview
+                </p>
+
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    {selectedHistory.ai_result?.overview}
+                  </p>
                 </div>
-              ) : (
-                <p className="mt-3 text-xs text-gray-300">No data available</p>
-              )}
+              </div>
+
+              <div className="mt-6 grid md:grid-cols-2 gap-4">
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Business Label
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-gray-800 mt-2 capitalize">
+                    {selectedHistory.ai_result?.label}
+                  </h3>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Scale Detected
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-gray-800 mt-2 capitalize">
+                    {selectedHistory.ai_result?.scale_detected}
+                  </h3>
+                </div>
+              </div>
+
+              <div className="mt-6 grid md:grid-cols-4 gap-4">
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Investment
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-blue-600 mt-2 uppercase">
+                    {selectedHistory.ai_result?.investment}
+                  </h3>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Workers
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-gray-900 mt-2">
+                    {selectedHistory.ai_result?.workers}
+                  </h3>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Profit Range
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-green-600 mt-2">
+                    {selectedHistory.ai_result?.profit_range}
+                  </h3>
+                </div>
+
+                <div className="bg-gray-50 rounded-2xl p-5">
+                  <p className="text-xs text-gray-300 uppercase">
+                    Risk
+                  </p>
+
+                  <h3 className="text-sm font-semibold text-red-500 mt-2 uppercase">
+                    {selectedHistory.ai_result?.risk}
+                  </h3>
+                </div>
+              </div>
             </div>
-          ))}
+
+            <div className="px-8 pb-4">
+              <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
+                Performance
+              </p>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                {historyCharts.map((c, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-50 rounded-2xl p-5"
+                  >
+                    <p className="text-xs text-blue-600 uppercase tracking-widest font-medium">
+                      {c.subtitle}
+                    </p>
+
+                    <h3 className="text-gray-900 font-semibold mt-1">
+                      {c.title}
+                    </h3>
+
+                    {c.summary && (
+                      <p className="mt-3 text-xs text-gray-400 leading-relaxed">
+                        {c.summary}
+                      </p>
+                    )}
+
+                    {c.data && c.data.length > 0 ? (
+                      <div className="mt-4 space-y-2">
+                        {c.data.map((entry, j) => (
+                          <div
+                            key={j}
+                            className="flex justify-between items-center"
+                          >
+                            <span className="text-xs text-gray-400">
+                              {entry.year}
+                            </span>
+
+                            <div className="flex-1 mx-3 h-1 rounded-full bg-gray-100 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-blue-500"
+                                style={{
+                                  width: `${Math.min(
+                                    100,
+                                    ((entry.revenue || 0) /
+                                      Math.max(
+                                        ...c.data.map(
+                                          (d) => d.revenue || 1
+                                        )
+                                      )) *
+                                      100
+                                  )}%`,
+                                  transition: `width 0.6s ease ${
+                                    j * 80
+                                  }ms`,
+                                }}
+                              />
+                            </div>
+
+                            <span className="text-xs text-gray-500 font-medium">
+                              {entry.revenue || "—"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-xs text-gray-300">
+                        No data available
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="px-8 pb-8 mt-2">
+              <p className="text-xs uppercase tracking-widest text-gray-300 font-medium mb-4">
+                Scale Projections
+              </p>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                {historyScales.map((s, i) => (
+                  <div
+                    key={i}
+                    className="bg-gray-50 rounded-2xl p-5"
+                  >
+                    <h4 className="text-gray-900 font-semibold text-sm">
+                      {s.title}
+                    </h4>
+
+                    {s.data ? (
+                      <div className="mt-3 space-y-2">
+                        {Object.entries(s.data).map(
+                          ([key, val]) => (
+                            <div
+                              key={key}
+                              className="flex justify-between items-center"
+                            >
+                              <span className="text-xs text-gray-400 capitalize">
+                                {key}
+                              </span>
+
+                              <span className="text-xs text-gray-600 font-medium">
+                                {String(val)}
+                              </span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-xs text-gray-300">
+                        No data available
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
-          style={{ background: "rgba(0,0,0,0.06)", backdropFilter: "blur(10px)" }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
+          style={{
+            background: "rgba(0,0,0,0.06)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <div className="bg-white rounded-3xl p-10 w-full max-w-sm shadow-xl modal-card">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
               style={{ background: "#fff5f5" }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M3 6h18" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" />
-                <path d="M8 6V4h8v2" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" />
-                <path d="M19 6l-1 14H6L5 6" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M3 6h18"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M8 6V4h8v2"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M19 6l-1 14H6L5 6"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </div>
 
             <h3 className="text-lg font-bold text-gray-900 tracking-tight">
               Delete this session?
             </h3>
+
             <p className="mt-2 text-sm text-gray-400 leading-relaxed">
-              This chat entry will be permanently removed and cannot be recovered.
+              This chat entry will be permanently removed and
+              cannot be recovered.
             </p>
 
             <div className="flex gap-3 mt-8">
@@ -388,18 +662,31 @@ const ChatHistory = () => {
                 onClick={() => setDeleteTarget(null)}
                 className="flex-1 py-3 rounded-xl text-sm font-medium text-gray-500 transition-all duration-200"
                 style={{ background: "#f5f5f5" }}
-                onMouseEnter={e => e.target.style.background = "#ececec"}
-                onMouseLeave={e => e.target.style.background = "#f5f5f5"}
+                onMouseEnter={(e) =>
+                  (e.target.style.background = "#ececec")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.background = "#f5f5f5")
+                }
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleDelete}
                 disabled={deleting}
                 className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all duration-200"
-                style={{ background: deleting ? "#aaa" : "#111" }}
-                onMouseEnter={e => { if (!deleting) e.target.style.background = "#e53e3e"; }}
-                onMouseLeave={e => { if (!deleting) e.target.style.background = "#111"; }}
+                style={{
+                  background: deleting ? "#aaa" : "#111",
+                }}
+                onMouseEnter={(e) => {
+                  if (!deleting)
+                    e.target.style.background = "#e53e3e";
+                }}
+                onMouseLeave={(e) => {
+                  if (!deleting)
+                    e.target.style.background = "#111";
+                }}
               >
                 {deleting ? "Deleting…" : "Delete"}
               </button>
@@ -409,26 +696,55 @@ const ChatHistory = () => {
       )}
 
       {deleteAllOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
-          style={{ background: "rgba(0,0,0,0.06)", backdropFilter: "blur(10px)" }}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
+          style={{
+            background: "rgba(0,0,0,0.06)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
           <div className="bg-white rounded-3xl p-10 w-full max-w-sm shadow-xl modal-card">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
               style={{ background: "#fff5f5" }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M12 9v4" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" />
-                <path d="M12 17h.01" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" />
-                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-                  stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M12 9v4"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M12 17h.01"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+
+                <path
+                  d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                  stroke="#e53e3e"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
 
             <h3 className="text-lg font-bold text-gray-900 tracking-tight">
               Clear all history?
             </h3>
+
             <p className="mt-2 text-sm text-gray-400 leading-relaxed">
-              Every chat session will be permanently erased. This action cannot be undone.
+              Every chat session will be permanently erased.
+              This action cannot be undone.
             </p>
 
             <div className="flex gap-3 mt-8">
@@ -436,18 +752,31 @@ const ChatHistory = () => {
                 onClick={() => setDeleteAllOpen(false)}
                 className="flex-1 py-3 rounded-xl text-sm font-medium text-gray-500 transition-all duration-200"
                 style={{ background: "#f5f5f5" }}
-                onMouseEnter={e => e.target.style.background = "#ececec"}
-                onMouseLeave={e => e.target.style.background = "#f5f5f5"}
+                onMouseEnter={(e) =>
+                  (e.target.style.background = "#ececec")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.background = "#f5f5f5")
+                }
               >
                 Cancel
               </button>
+
               <button
                 onClick={handleDeleteAll}
                 disabled={deleting}
                 className="flex-1 py-3 rounded-xl text-sm font-medium text-white transition-all duration-200"
-                style={{ background: deleting ? "#aaa" : "#111" }}
-                onMouseEnter={e => { if (!deleting) e.target.style.background = "#e53e3e"; }}
-                onMouseLeave={e => { if (!deleting) e.target.style.background = "#111"; }}
+                style={{
+                  background: deleting ? "#aaa" : "#111",
+                }}
+                onMouseEnter={(e) => {
+                  if (!deleting)
+                    e.target.style.background = "#e53e3e";
+                }}
+                onMouseLeave={(e) => {
+                  if (!deleting)
+                    e.target.style.background = "#111";
+                }}
               >
                 {deleting ? "Deleting…" : "Delete All"}
               </button>

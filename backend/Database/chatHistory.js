@@ -1,5 +1,55 @@
 const mongoose = require("mongoose");
 
+const yearlyAnalysisSchema = new mongoose.Schema(
+  {
+    year: {
+      type: Number,
+      default: 0,
+    },
+
+    revenue: {
+      type: Number,
+      default: 0,
+    },
+
+    profit: {
+      type: Number,
+      default: 0,
+    },
+
+    investment: {
+      type: Number,
+      default: 0,
+    },
+  },
+  { _id: false }
+);
+
+const scaleSchema = new mongoose.Schema(
+  {
+    workers: {
+      type: Number,
+      default: 0,
+    },
+
+    investment: {
+      type: Number,
+      default: 0,
+    },
+
+    revenue: {
+      type: Number,
+      default: 0,
+    },
+
+    profit: {
+      type: Number,
+      default: 0,
+    },
+  },
+  { _id: false }
+);
+
 const chatHistorySchema = new mongoose.Schema(
   {
     user: {
@@ -43,8 +93,8 @@ const chatHistorySchema = new mongoose.Schema(
       },
 
       workers: {
-        type: String,
-        default: "",
+        type: Number,
+        default: 0,
       },
 
       profit_range: {
@@ -57,42 +107,52 @@ const chatHistorySchema = new mongoose.Schema(
         default: "",
       },
 
-      past_yearly_analysis: [
-        {
-          year: String,
-          revenue: Number,
-          profit: Number,
-        },
-      ],
+      label: {
+        type: String,
+        default: "",
+      },
 
-      yearly_analysis: [
-        {
-          year: String,
-          revenue: Number,
-          profit: Number,
+      scale_detected: {
+        type: String,
+        default: "",
+      },
+
+      past_summary: {
+        type: String,
+        default: "",
+      },
+
+      past_yearly_analysis: {
+        summary: {
+          type: String,
+          default: "",
         },
-      ],
+
+        data: {
+          type: [yearlyAnalysisSchema],
+          default: [],
+        },
+      },
+
+      yearly_analysis: {
+        type: [yearlyAnalysisSchema],
+        default: [],
+      },
 
       scale: {
         small: {
-          workers: String,
-          investment: String,
-          revenue: String,
-          profit: String,
+          type: scaleSchema,
+          default: () => ({}),
         },
 
         medium: {
-          workers: String,
-          investment: String,
-          revenue: String,
-          profit: String,
+          type: scaleSchema,
+          default: () => ({}),
         },
 
         large: {
-          workers: String,
-          investment: String,
-          revenue: String,
-          profit: String,
+          type: scaleSchema,
+          default: () => ({}),
         },
       },
     },

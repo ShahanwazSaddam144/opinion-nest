@@ -2,15 +2,6 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
 import Header from "./Header";
 import { fadeUp } from "./animations";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -19,64 +10,94 @@ import "swiper/css";
 import "swiper/css/pagination";
 
 const ModelUi = () => {
-  const [form, setForm] = useState({ name: "", industry: "", description: "" });
+  const [form, setForm] = useState({
+    name: "",
+    industry: "",
+    description: "",
+  });
+
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     setError("");
     setResult(null);
+
     try {
       const res = await fetch(
         "https://api.business-model.buttnetworks.com/predict",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(form),
-        },
+        }
       );
+
       const data = await res.json();
-      if (data.error) throw new Error(data.error);
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
       setResult(data);
 
-      await fetch("https://api.business-model.buttnetworks.com/api/chat-history", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          business_name: form.name,
-          business_industry: form.industry,
-          business_description: form.description,
-
-          ai_result: {
-            overview: data.description,
-            investment: data.investment,
-            workers: data.workers,
-            profit_range: data.profit?.range,
-            risk: data.risk,
-
-            past_yearly_analysis: data.past_yearly_analysis || [],
-
-            yearly_analysis: data.yearly_analysis || [],
-
-            scale: {
-              small: data.scale?.small || {},
-              medium: data.scale?.medium || {},
-              large: data.scale?.large || {},
-            },
+      await fetch(
+        "https://api.business-model.buttnetworks.com/api/chat-history",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }),
-        credentials: "include",
-      });
+          credentials: "include",
+          body: JSON.stringify({
+            business_name: form.name,
+            business_industry: form.industry,
+            business_description: form.description,
+
+            ai_result: {
+              overview: data.description,
+              investment: data.investment,
+              workers: data.workers,
+              profit_range: data.profit?.range,
+              risk: data.risk,
+              scale_detected: data.scale_detected,
+
+              past_summary:
+                data.past_yearly_analysis?.summary || "",
+
+              future_summary:
+                data.future_summary || "",
+
+              past_yearly_analysis:
+                data.past_yearly_analysis?.data || [],
+
+              yearly_analysis:
+                data.yearly_analysis || [],
+
+              scale: {
+                small: data.scale?.small || {},
+                medium: data.scale?.medium || {},
+                large: data.scale?.large || {},
+              },
+            },
+          }),
+        }
+      );
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
+
     setLoading(false);
   };
 
@@ -85,12 +106,12 @@ const ModelUi = () => {
         {
           title: "Historical Performance",
           subtitle: "Past 6 years",
-          data: result.past_yearly_analysis,
+          data: result.past_yearly_analysis?.data || [],
         },
         {
           title: "Growth Projection",
           subtitle: "Next 6 years",
-          data: result.yearly_analysis,
+          data: result.yearly_analysis || [],
         },
       ]
     : [];
@@ -119,20 +140,13 @@ const ModelUi = () => {
     : [];
 
   return (
-    <div
-      style={{
-        fontFamily: "'DM Sans', sans-serif",
-        minHeight: "100vh",
-        background: "#f8f9fb",
-        padding: "48px 16px",
-      }}
-    >
+    <div className="min-h-screen bg-[#f8f9fb] px-4 py-12 font-[DM_Sans]">
       <link
-        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap"
         rel="stylesheet"
       />
 
-      <div style={{ maxWidth: 860, margin: "0 auto" }}>
+      <div className="mx-auto max-w-[860px]">
         <Header />
 
         <motion.div
@@ -140,33 +154,23 @@ const ModelUi = () => {
           animate="show"
           variants={fadeUp}
           custom={1}
-          style={{
-            background: "#fff",
-            borderRadius: 20,
-            padding: "28px 20px",
-            boxShadow:
-              "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
-            marginBottom: 32,
-          }}
+          className="mb-8 rounded-[20px] bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_32px_rgba(37,99,235,0.06)]"
         >
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: 16,
-              }}
-            >
+          <div className="flex flex-col gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Field>
                 <Label>Business Name</Label>
+
                 <Input
                   name="name"
                   placeholder="e.g. NovaBrew"
                   onChange={handleChange}
                 />
               </Field>
+
               <Field>
                 <Label>Industry</Label>
+
                 <Input
                   name="industry"
                   placeholder="e.g. tech, food, manufacturing"
@@ -177,77 +181,28 @@ const ModelUi = () => {
 
             <Field>
               <Label>Business Description</Label>
+
               <textarea
                 name="description"
                 rows={4}
                 placeholder="Describe your business idea in detail..."
                 onChange={handleChange}
-                style={{
-                  width: "100%",
-                  padding: "12px 16px",
-                  fontSize: 14,
-                  color: "#0f172a",
-                  background: "#f8fafd",
-                  border: "1.5px solid #e2e8f0",
-                  borderRadius: 12,
-                  outline: "none",
-                  resize: "none",
-                  fontFamily: "inherit",
-                  fontWeight: 300,
-                  transition: "border-color 0.2s",
-                  boxSizing: "border-box",
-                  lineHeight: 1.6,
-                }}
-                onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-                onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
+                className="w-full resize-none rounded-xl border-[1.5px] border-[#e2e8f0] bg-[#f8fafd] px-4 py-3 text-sm font-light text-[#0f172a] outline-none transition-all focus:border-[#2563eb]"
               />
             </Field>
 
             <button
               onClick={handleSubmit}
               disabled={loading}
-              style={{
-                width: "100%",
-                padding: "15px 24px",
-                borderRadius: 12,
-                border: "none",
-                background: loading
-                  ? "#94a3b8"
-                  : "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-                color: "#fff",
-                fontSize: 15,
-                fontWeight: 500,
-                fontFamily: "inherit",
-                cursor: loading ? "not-allowed" : "pointer",
-                letterSpacing: "0.01em",
-                transition: "all 0.2s",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 10,
-              }}
-              onMouseEnter={(e) => {
-                if (!loading) e.target.style.transform = "translateY(-1px)";
-                e.target.style.boxShadow = "0 8px 24px rgba(37,99,235,0.3)";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = "translateY(0)";
-                e.target.style.boxShadow = "none";
-              }}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-[15px] font-medium text-white transition-all ${
+                loading
+                  ? "cursor-not-allowed bg-[#94a3b8]"
+                  : "bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] hover:-translate-y-[1px] hover:shadow-[0_8px_24px_rgba(37,99,235,0.3)]"
+              }`}
             >
               {loading ? (
                 <>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      width: 16,
-                      height: 16,
-                      border: "2px solid rgba(255,255,255,0.3)",
-                      borderTopColor: "#fff",
-                      borderRadius: "50%",
-                      animation: "spin 0.7s linear infinite",
-                    }}
-                  />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                   Analyzing...
                 </>
               ) : (
@@ -263,60 +218,77 @@ const ModelUi = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ display: "flex", flexDirection: "column", gap: 24 }}
+              className="flex flex-col gap-6"
             >
               <motion.div
                 variants={fadeUp}
                 initial="hidden"
                 animate="show"
                 custom={0}
-                style={{
-                  background: "#fff",
-                  borderRadius: 20,
-                  padding: "28px 20px",
-                  boxShadow:
-                    "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
-                }}
+                className="rounded-[20px] bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_32px_rgba(37,99,235,0.06)]"
               >
                 <SectionLabel>Overview</SectionLabel>
-                <p
-                  style={{
-                    fontSize: 15,
-                    color: "#475569",
-                    lineHeight: 1.7,
-                    marginBottom: 28,
-                    fontWeight: 300,
-                  }}
-                >
+
+                <p className="mb-7 text-[15px] font-light leading-[1.8] text-[#475569]">
                   {result.description}
                 </p>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-                    gap: 12,
-                  }}
-                >
+
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <StatCard
                     label="Investment"
                     value={result.investment}
                     color="#2563eb"
                   />
+
                   <StatCard
                     label="Workers"
                     value={result.workers}
                     color="#0f172a"
                   />
+
                   <StatCard
                     label="Profit Range"
                     value={result.profit?.range}
                     color="#16a34a"
                   />
+
                   <StatCard
                     label="Risk Level"
                     value={result.risk}
                     color="#dc2626"
                   />
+                </div>
+              </motion.div>
+
+              <motion.div
+                variants={fadeUp}
+                initial="hidden"
+                animate="show"
+                custom={0.5}
+                className="rounded-[20px] bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_32px_rgba(37,99,235,0.06)]"
+              >
+                <SectionLabel>Industry Insights</SectionLabel>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                  <div className="rounded-2xl bg-[#f8fafd] p-5">
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#94a3b8]">
+                      Past 6 Years Summary
+                    </p>
+
+                    <p className="text-[14px] font-light leading-7 text-[#475569]">
+                      {result.past_yearly_analysis?.summary}
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-[#eff6ff] p-5">
+                    <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2563eb]">
+                      Future 6 Years Outlook
+                    </p>
+
+                    <p className="text-[14px] font-light leading-7 text-[#334155]">
+                      {result.future_summary}
+                    </p>
+                  </div>
                 </div>
               </motion.div>
 
@@ -331,8 +303,12 @@ const ModelUi = () => {
                   spaceBetween={16}
                   slidesPerView={1}
                   pagination={{ clickable: true }}
-                  breakpoints={{ 768: { slidesPerView: 2 } }}
-                  style={{ paddingBottom: 36 }}
+                  breakpoints={{
+                    768: {
+                      slidesPerView: 2,
+                    },
+                  }}
+                  className="pb-10"
                 >
                   {chartSlides.map((slide, i) => (
                     <SwiperSlide key={i}>
@@ -351,22 +327,21 @@ const ModelUi = () => {
                 initial="hidden"
                 animate="show"
                 custom={2}
-                style={{
-                  background: "#fff",
-                  borderRadius: 20,
-                  padding: "28px 20px",
-                  boxShadow:
-                    "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
-                }}
+                className="rounded-[20px] bg-white p-7 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_32px_rgba(37,99,235,0.06)]"
               >
                 <SectionLabel>Scale Comparison</SectionLabel>
+
                 <Swiper
                   modules={[Pagination]}
                   spaceBetween={16}
                   slidesPerView={1}
                   pagination={{ clickable: true }}
-                  breakpoints={{ 768: { slidesPerView: 3 } }}
-                  style={{ paddingBottom: 36, marginTop: 8 }}
+                  breakpoints={{
+                    768: {
+                      slidesPerView: 3,
+                    },
+                  }}
+                  className="mt-2 pb-10"
                 >
                   {scaleSlides.map((slide, i) => (
                     <SwiperSlide key={i}>
@@ -390,205 +365,135 @@ const ModelUi = () => {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 12 }}
-              style={{
-                position: "fixed",
-                bottom: 24,
-                right: 24,
-                background: "#0f172a",
-                color: "#fff",
-                padding: "14px 20px",
-                borderRadius: 12,
-                fontSize: 14,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-                maxWidth: 320,
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-              }}
+              className="fixed bottom-6 right-6 flex max-w-[320px] items-center gap-3 rounded-xl bg-[#0f172a] px-5 py-4 text-sm text-white shadow-[0_8px_32px_rgba(0,0,0,0.2)]"
             >
-              <span
-                style={{
-                  width: 6,
-                  height: 6,
-                  borderRadius: "50%",
-                  background: "#f87171",
-                  flexShrink: 0,
-                }}
-              />
+              <span className="h-[6px] w-[6px] rounded-full bg-[#f87171]" />
+
               {error}
             </motion.div>
           )}
         </AnimatePresence>
 
-        <style>{`
-          @keyframes spin { to { transform: rotate(360deg); } }
-          input::placeholder, textarea::placeholder { color: #94a3b8; }
-          .swiper-pagination-bullet { background: #cbd5e1; opacity: 1; }
-          .swiper-pagination-bullet-active { background: #2563eb; }
+        <style jsx global>{`
+          .swiper-pagination-bullet {
+            background: #cbd5e1;
+            opacity: 1;
+          }
+
+          .swiper-pagination-bullet-active {
+            background: #2563eb;
+          }
         `}</style>
       </div>
     </div>
   );
 };
 
-const Field = ({ children }) => (
-  <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-    {children}
-  </div>
-);
+const Field = ({ children }) => {
+  return <div className="flex flex-col gap-[7px]">{children}</div>;
+};
 
-const Label = ({ children }) => (
-  <label
-    style={{
-      fontSize: 12,
-      fontWeight: 500,
-      color: "#64748b",
-      letterSpacing: "0.04em",
-      textTransform: "uppercase",
-    }}
-  >
-    {children}
-  </label>
-);
+const Label = ({ children }) => {
+  return (
+    <label className="text-[12px] font-medium uppercase tracking-[0.04em] text-[#64748b]">
+      {children}
+    </label>
+  );
+};
 
-const Input = ({ name, placeholder, onChange }) => (
-  <input
-    name={name}
-    placeholder={placeholder}
-    onChange={onChange}
-    style={{
-      width: "100%",
-      padding: "12px 16px",
-      fontSize: 14,
-      color: "#0f172a",
-      background: "#f8fafd",
-      border: "1.5px solid #e2e8f0",
-      borderRadius: 12,
-      outline: "none",
-      fontFamily: "inherit",
-      fontWeight: 300,
-      boxSizing: "border-box",
-      transition: "border-color 0.2s",
-    }}
-    onFocus={(e) => (e.target.style.borderColor = "#2563eb")}
-    onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
-  />
-);
+const Input = ({ name, placeholder, onChange }) => {
+  return (
+    <input
+      name={name}
+      placeholder={placeholder}
+      onChange={onChange}
+      className="w-full rounded-xl border-[1.5px] border-[#e2e8f0] bg-[#f8fafd] px-4 py-3 text-sm font-light text-[#0f172a] outline-none transition-all placeholder:text-[#94a3b8] focus:border-[#2563eb]"
+    />
+  );
+};
 
-const SectionLabel = ({ children }) => (
-  <h3
-    style={{
-      fontSize: 11,
-      fontWeight: 600,
-      letterSpacing: "0.1em",
-      textTransform: "uppercase",
-      color: "#94a3b8",
-      marginBottom: 16,
-      marginTop: 0,
-    }}
-  >
-    {children}
-  </h3>
-);
+const SectionLabel = ({ children }) => {
+  return (
+    <h3 className="mb-4 mt-0 text-[11px] font-semibold uppercase tracking-[0.1em] text-[#94a3b8]">
+      {children}
+    </h3>
+  );
+};
 
-const StatCard = ({ label, value, color }) => (
-  <div
-    style={{ background: "#f8fafd", borderRadius: 14, padding: "18px 20px" }}
-  >
-    <p
-      style={{
-        fontSize: 11,
-        color: "#94a3b8",
-        fontWeight: 500,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        marginBottom: 8,
-      }}
-    >
-      {label}
-    </p>
-    <p
-      style={{
-        fontSize: 20,
-        fontWeight: 600,
-        color,
-        margin: 0,
-        letterSpacing: "-0.02em",
-      }}
-    >
-      {value}
-    </p>
-  </div>
-);
+const StatCard = ({ label, value, color }) => {
+  return (
+    <div className="rounded-[14px] bg-[#f8fafd] px-5 py-[18px]">
+      <p className="mb-2 text-[11px] font-medium uppercase tracking-[0.08em] text-[#94a3b8]">
+        {label}
+      </p>
+
+      <p
+        className="m-0 text-[20px] font-semibold tracking-[-0.02em]"
+        style={{ color }}
+      >
+        {value}
+      </p>
+    </div>
+  );
+};
 
 const ChartCard = ({ title, subtitle, data }) => {
-  const R = 28, STROKE = 5.5;
+  const R = 28;
+  const STROKE = 5.5;
+
   const CIRC = 2 * Math.PI * R;
+
   const INNER_R = R - STROKE - 2;
   const INNER_CIRC = 2 * Math.PI * INNER_R;
 
   const max = data?.length
-    ? Math.max(...data.map((d) => Math.max(d.revenue || 0, d.profit || 0)))
+    ? Math.max(
+        ...data.map((d) =>
+          Math.max(d.revenue || 0, d.profit || 0)
+        )
+      )
     : 100;
 
   return (
-    <div
-      style={{
-        background: "#fff",
-        borderRadius: 20,
-        padding: "28px 24px",
-        boxShadow:
-          "0 1px 3px rgba(0,0,0,0.06), 0 8px 32px rgba(37,99,235,0.06)",
-      }}
-    >
+    <div className="rounded-[20px] bg-white px-6 py-7 shadow-[0_1px_3px_rgba(0,0,0,0.06),0_8px_32px_rgba(37,99,235,0.06)]">
       <SectionLabel>{subtitle}</SectionLabel>
-      <h3
-        style={{
-          fontSize: 16,
-          fontWeight: 600,
-          color: "#0f172a",
-          margin: "0 0 20px",
-          letterSpacing: "-0.01em",
-        }}
-      >
+
+      <h3 className="mb-5 text-[16px] font-semibold tracking-[-0.01em] text-[#0f172a]">
         {title}
       </h3>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 20,
-          flexWrap: "wrap",
-          padding: "8px 0 16px",
-        }}
-      >
+      <div className="flex flex-wrap items-center justify-center gap-5 py-2 pb-4">
         {(data || []).map((d) => {
           const rPct = Math.round((d.revenue / max) * 100);
+
           const pPct = Math.round((d.profit / max) * 100);
+
           const rOff = CIRC - (rPct / 100) * CIRC;
-          const pOff = INNER_CIRC - (pPct / 100) * INNER_CIRC;
+
+          const pOff =
+            INNER_CIRC - (pPct / 100) * INNER_CIRC;
+
           const size = (R + STROKE) * 2 + 4;
+
           const cx = size / 2;
 
           return (
             <div
               key={d.year}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 10,
-              }}
+              className="flex flex-col items-center gap-2"
             >
-              <div style={{ position: "relative", width: size, height: size }}>
+              <div
+                className="relative"
+                style={{
+                  width: size,
+                  height: size,
+                }}
+              >
                 <svg
                   width={size}
                   height={size}
-                  style={{ transform: "rotate(-90deg)", display: "block" }}
+                  className="-rotate-90"
                 >
-                  {/* Track outer */}
                   <circle
                     cx={cx}
                     cy={cx}
@@ -597,7 +502,7 @@ const ChartCard = ({ title, subtitle, data }) => {
                     stroke="#f1f5f9"
                     strokeWidth={STROKE + 2}
                   />
-                  {/* Revenue ring */}
+
                   <circle
                     cx={cx}
                     cy={cx}
@@ -608,9 +513,8 @@ const ChartCard = ({ title, subtitle, data }) => {
                     strokeDasharray={CIRC}
                     strokeDashoffset={rOff}
                     strokeLinecap="round"
-                    style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
                   />
-                  {/* Track inner */}
+
                   <circle
                     cx={cx}
                     cy={cx}
@@ -619,7 +523,7 @@ const ChartCard = ({ title, subtitle, data }) => {
                     stroke="#dcfce7"
                     strokeWidth={STROKE - 1}
                   />
-                  {/* Profit ring */}
+
                   <circle
                     cx={cx}
                     cy={cx}
@@ -630,43 +534,21 @@ const ChartCard = ({ title, subtitle, data }) => {
                     strokeDasharray={INNER_CIRC}
                     strokeDashoffset={pOff}
                     strokeLinecap="round"
-                    style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
                   />
                 </svg>
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: 1,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "#2563eb",
-                      lineHeight: 1,
-                    }}
-                  >
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-[11px] font-semibold text-[#2563eb]">
                     {rPct}%
                   </span>
-                  <span
-                    style={{
-                      fontSize: 9,
-                      fontWeight: 500,
-                      color: "#16a34a",
-                      lineHeight: 1,
-                    }}
-                  >
+
+                  <span className="text-[9px] font-medium text-[#16a34a]">
                     {pPct}%
                   </span>
                 </div>
               </div>
-              <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400 }}>
+
+              <span className="text-[11px] font-normal text-[#94a3b8]">
                 {d.year}
               </span>
             </div>
@@ -674,98 +556,94 @@ const ChartCard = ({ title, subtitle, data }) => {
         })}
       </div>
 
-      <div style={{ display: "flex", gap: 20, justifyContent: "center" }}>
+      <div className="flex justify-center gap-5">
         <LegendItem color="#2563eb" label="Revenue" />
+
         <LegendItem color="#16a34a" label="Profit" />
       </div>
     </div>
   );
 };
 
-const LegendItem = ({ color, label }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-    <span
-      style={{
-        width: 24,
-        height: 2.5,
-        background: color,
-        borderRadius: 2,
-        display: "inline-block",
-      }}
-    />
-    <span style={{ fontSize: 12, color: "#64748b", fontWeight: 400 }}>
-      {label}
-    </span>
-  </div>
-);
-
-const ScaleCard = ({ title, data, accent, featured }) => (
-  <div
-    style={{
-      borderRadius: 16,
-      padding: "24px",
-      background: featured ? "#eff6ff" : "#f8fafd",
-      outline: featured ? "2px solid #2563eb" : "none",
-      position: "relative",
-      transition: "transform 0.2s",
-    }}
-  >
-    {featured && (
+const LegendItem = ({ color, label }) => {
+  return (
+    <div className="flex items-center gap-[7px]">
       <span
-        style={{
-          position: "absolute",
-          top: -10,
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "#2563eb",
-          color: "#fff",
-          fontSize: 10,
-          fontWeight: 600,
-          padding: "3px 12px",
-          borderRadius: 20,
-          letterSpacing: "0.08em",
-          textTransform: "uppercase",
-          marginTop: 10,
-        }}
-      >
-        Recommended
-      </span>
-    )}
-    <h4
-      style={{
-        fontSize: 14,
-        fontWeight: 600,
-        color: accent,
-        marginBottom: 16,
-        letterSpacing: "-0.01em",
-      }}
-    >
-      {title}
-    </h4>
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <ScaleRow label="Workers" value={data?.workers} />
-      <ScaleRow label="Investment" value={data?.investment} />
-      <ScaleRow label="Revenue" value={data?.revenue} />
-      <ScaleRow label="Profit" value={data?.profit} />
-    </div>
-  </div>
-);
+        className="inline-block h-[2.5px] w-6 rounded-[2px]"
+        style={{ background: color }}
+      />
 
-const ScaleRow = ({ label, value }) => (
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-    }}
-  >
-    <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 400 }}>
-      {label}
-    </span>
-    <span style={{ fontSize: 13, fontWeight: 500, color: "#0f172a" }}>
-      {value}
-    </span>
-  </div>
-);
+      <span className="text-[12px] font-normal text-[#64748b]">
+        {label}
+      </span>
+    </div>
+  );
+};
+
+const ScaleCard = ({
+  title,
+  data,
+  accent,
+  featured,
+}) => {
+  return (
+    <div
+      className={`relative rounded-2xl p-6 transition-all ${
+        featured
+          ? "bg-[#eff6ff] outline outline-2 outline-[#2563eb]"
+          : "bg-[#f8fafd]"
+      }`}
+    >
+      {featured && (
+        <span className="absolute left-1/2 top-[-10px] -translate-x-1/2 rounded-[20px] bg-[#2563eb] px-3 py-[3px] text-[10px] font-semibold uppercase tracking-[0.08em] text-white">
+          Recommended
+        </span>
+      )}
+
+      <h4
+        className="mb-4 text-[14px] font-semibold tracking-[-0.01em]"
+        style={{ color: accent }}
+      >
+        {title}
+      </h4>
+
+      <div className="flex flex-col gap-[10px]">
+        <ScaleRow
+          label="Workers"
+          value={data?.workers}
+        />
+
+        <ScaleRow
+          label="Investment"
+          value={data?.investment}
+        />
+
+        <ScaleRow
+          label="Revenue"
+          value={data?.revenue}
+        />
+
+        <ScaleRow
+          label="Profit"
+          value={data?.profit}
+        />
+      </div>
+    </div>
+  );
+};
+
+const ScaleRow = ({ label, value }) => {
+  return (
+    <div className="flex items-center justify-between">
+      <span className="text-[12px] font-normal text-[#94a3b8]">
+        {label}
+      </span>
+
+      <span className="text-[13px] font-medium text-[#0f172a]">
+        {value}
+      </span>
+    </div>
+  );
+};
 
 export default ModelUi;

@@ -12,7 +12,11 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
       ai_result,
     } = req.body;
 
-    if (!business_name || !business_industry || !business_description) {
+    if (
+      !business_name ||
+      !business_industry ||
+      !business_description
+    ) {
       return res.status(400).json({
         success: false,
         message: "Please fill all fields",
@@ -33,6 +37,15 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
         workers: ai_result?.workers,
         profit_range: ai_result?.profit_range,
         risk: ai_result?.risk,
+
+        scale_detected:
+          ai_result?.scale_detected || "",
+
+        past_summary:
+          ai_result?.past_summary || "",
+
+        future_summary:
+          ai_result?.future_summary || "",
 
         past_yearly_analysis:
           ai_result?.past_yearly_analysis || [],
