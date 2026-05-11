@@ -30,7 +30,7 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
     if (!finalAiResult) {
       try {
-        const predictUrl = process.env.FASTAPI_URL || "http://localhost:8000/predict";
+        const predictUrl = process.env.FASTAPI_URL || "http://api.business-model.buttnetworks.com/predict";
         const urlObj = new URL(predictUrl);
         const postData = JSON.stringify({ name: business_name, industry: business_industry, description: business_description });
 
