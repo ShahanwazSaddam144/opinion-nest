@@ -33,14 +33,14 @@ const ModelUi = () => {
     setResult(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-history`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          business_name: form.name,
-          business_industry: form.industry,
-          business_description: form.description,
+          name: form.name,
+          industry: form.industry,
+          description: form.description,
         }),
       });
 
@@ -48,9 +48,7 @@ const ModelUi = () => {
 
       if (!res.ok) throw new Error(payload.message || "Server error");
 
-      const saved = payload.data;
-
-      setResult(saved.ai_result || null);
+      setResult(payload ?? null);
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
