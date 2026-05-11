@@ -2,9 +2,6 @@ const express = require("express");
 const router = express.Router();
 const chatHistory = require("../Database/chatHistory");
 const { authMiddleware } = require("../middleware/authMiddleware");
-const http = require("http");
-const https = require("https");
-const { URL } = require("url");
 
 router.post("/chat-history", authMiddleware, async (req, res) => {
   try {
@@ -26,58 +23,13 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
       });
     }
 
-    let finalAiResult = ai_result;
-
-    if (!finalAiResult) {
-      try {
-        const predictUrl = process.env.FASTAPI_URL || "http://api.business-model.buttnetworks.com/predict";
-        const urlObj = new URL(predictUrl);
-        const postData = JSON.stringify({ name: business_name, industry: business_industry, description: business_description });
-
-        finalAiResult = await new Promise((resolve, reject) => {
-          const lib = urlObj.protocol === "https:" ? https : http;
-
-          const options = {
-            hostname: urlObj.hostname,
-            port: urlObj.port || (urlObj.protocol === "https:" ? 443 : 80),
-            path: urlObj.pathname + (urlObj.search || ""),
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Content-Length": Buffer.byteLength(postData),
-            },
-          };
-
-          const r = lib.request(options, (resp) => {
-            let body = "";
-            resp.on("data", (chunk) => (body += chunk));
-            resp.on("end", () => {
-              try {
-                const parsed = JSON.parse(body || "{}");
-                resolve(parsed);
-              } catch (e) {
-                reject(e);
-              }
-            });
-          });
-
-          r.on("error", (err) => reject(err));
-          r.write(postData);
-          r.end();
-        });
-      } catch (err) {
-        console.error("External Predict Error:", err);
-        finalAiResult = null;
-      }
-    }
-
     const formattedPastAnalysis =
-      finalAiResult?.past_yearly_analysis?.data ||
-      finalAiResult?.past_yearly_analysis ||
+      ai_result?.past_yearly_analysis?.data ||
+      ai_result?.past_yearly_analysis ||
       [];
 
     const formattedFutureAnalysis =
-      finalAiResult?.yearly_analysis || [];
+      ai_result?.yearly_analysis || [];
 
     const newChatHistory = new chatHistory({
       user: req.user._id,
@@ -89,45 +41,51 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
       ai_result: {
         overview:
-          finalAiResult?.overview ||
-          finalAiResult?.description ||
+          ai_result?.overview ||
+          ai_result?.description ||
           "",
 
         investment:
-          finalAiResult?.investment || "",
+          ai_result?.investment || "",
 
         workers:
-          Number(finalAiResult?.workers || 0),
+          Number(ai_result?.workers || 0),
 
         profit_range:
-          finalAiResult?.profit_range ||
-          finalAiResult?.profit?.range ||
+          ai_result?.profit_range ||
+          ai_result?.profit?.range ||
           "",
 
         risk:
-          finalAiResult?.risk || "",
+          ai_result?.risk || "",
 
         label:
-          finalAiResult?.label || "",
+          ai_result?.label || "",
 
         scale_detected:
-          finalAiResult?.scale_detected || "",
+          ai_result?.scale_detected || "",
 
         past_summary:
-          finalAiResult?.past_summary ||
-          finalAiResult?.past_yearly_analysis?.summary ||
+          ai_result?.past_summary ||
+          ai_result?.past_yearly_analysis?.summary ||
           "",
 
         future_summary:
-          finalAiResult?.future_summary || "",
+          ai_result?.future_summary || "",
 
-        past_yearly_analysis:
-          formattedPastAnalysis.map((item) => ({
+        past_yearly_analysis: {
+          summary:
+            ai_result?.past_summary ||
+            ai_result?.past_yearly_analysis?.summary ||
+            "",
+
+          data: formattedPastAnalysis.map((item) => ({
             year: Number(item.year),
             revenue: Number(item.revenue || 0),
             profit: Number(item.profit || 0),
             investment: Number(item.investment || 0),
           })),
+        },
 
         yearly_analysis:
           formattedFutureAnalysis.map((item) => ({
@@ -140,46 +98,46 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
         scale: {
           small: {
             workers: Number(
-              finalAiResult?.scale?.small?.workers || 0
+              ai_result?.scale?.small?.workers || 0
             ),
             investment: Number(
-              finalAiResult?.scale?.small?.investment || 0
+              ai_result?.scale?.small?.investment || 0
             ),
             revenue: Number(
-              finalAiResult?.scale?.small?.revenue || 0
+              ai_result?.scale?.small?.revenue || 0
             ),
             profit: Number(
-              finalAiResult?.scale?.small?.profit || 0
+              ai_result?.scale?.small?.profit || 0
             ),
           },
 
           medium: {
             workers: Number(
-              finalAiResult?.scale?.medium?.workers || 0
+              ai_result?.scale?.medium?.workers || 0
             ),
             investment: Number(
-              finalAiResult?.scale?.medium?.investment || 0
+              ai_result?.scale?.medium?.investment || 0
             ),
             revenue: Number(
-              finalAiResult?.scale?.medium?.revenue || 0
+              ai_result?.scale?.medium?.revenue || 0
             ),
             profit: Number(
-              finalAiResult?.scale?.medium?.profit || 0
+              ai_result?.scale?.medium?.profit || 0
             ),
           },
 
           large: {
             workers: Number(
-              finalAiResult?.scale?.large?.workers || 0
+              ai_result?.scale?.large?.workers || 0
             ),
             investment: Number(
-              finalAiResult?.scale?.large?.investment || 0
+              ai_result?.scale?.large?.investment || 0
             ),
             revenue: Number(
-              finalAiResult?.scale?.large?.revenue || 0
+              ai_result?.scale?.large?.revenue || 0
             ),
             profit: Number(
-              finalAiResult?.scale?.large?.profit || 0
+              ai_result?.scale?.large?.profit || 0
             ),
           },
         },

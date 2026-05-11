@@ -33,10 +33,10 @@ const ModelUi = () => {
     setResult(null);
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/predict`, {
+      // Step 1: Call FastAPI to get AI prediction
+      const aiRes = await fetch("https://api.business-model.buttnetworks.com/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
           name: form.name,
           industry: form.industry,
@@ -44,11 +44,24 @@ const ModelUi = () => {
         }),
       });
 
-      const payload = await res.json();
+      const aiPayload = await aiRes.json();
 
-      if (!res.ok) throw new Error(payload.message || "Server error");
+      if (!aiRes.ok) throw new Error(aiPayload.message || "AI Server error");
 
-      setResult(payload ?? null);
+      // Step 2: Save to MongoDB via Express
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-history`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          business_name: form.name,
+          business_industry: form.industry,
+          business_description: form.description,
+          ai_result: aiPayload,
+        }),
+      });
+
+      setResult(aiPayload ?? null);
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
