@@ -23,6 +23,14 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
       });
     }
 
+    const formattedPastAnalysis =
+      ai_result?.past_yearly_analysis?.data ||
+      ai_result?.past_yearly_analysis ||
+      [];
+
+    const formattedFutureAnalysis =
+      ai_result?.yearly_analysis || [];
+
     const newChatHistory = new chatHistory({
       user: req.user._id,
       email: req.user.email,
@@ -32,31 +40,97 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
       business_description,
 
       ai_result: {
-        overview: ai_result?.overview,
-        investment: ai_result?.investment,
-        workers: ai_result?.workers,
-        profit_range: ai_result?.profit_range,
-        risk: ai_result?.risk,
+        overview:
+          ai_result?.overview ||
+          ai_result?.description ||
+          "",
+
+        investment:
+          ai_result?.investment || "",
+
+        workers:
+          String(ai_result?.workers || ""),
+
+        profit_range:
+          ai_result?.profit_range ||
+          ai_result?.profit?.range ||
+          "",
+
+        risk:
+          ai_result?.risk || "",
 
         scale_detected:
           ai_result?.scale_detected || "",
 
         past_summary:
-          ai_result?.past_summary || "",
+          ai_result?.past_summary ||
+          ai_result?.past_yearly_analysis?.summary ||
+          "",
 
         future_summary:
           ai_result?.future_summary || "",
 
         past_yearly_analysis:
-          ai_result?.past_yearly_analysis || [],
+          formattedPastAnalysis.map((item) => ({
+            year: String(item.year),
+            revenue: Number(item.revenue || 0),
+            profit: Number(item.profit || 0),
+            investment: Number(item.investment || 0),
+          })),
 
         yearly_analysis:
-          ai_result?.yearly_analysis || [],
+          formattedFutureAnalysis.map((item) => ({
+            year: String(item.year),
+            revenue: Number(item.revenue || 0),
+            profit: Number(item.profit || 0),
+            investment: Number(item.investment || 0),
+          })),
 
         scale: {
-          small: ai_result?.scale?.small || {},
-          medium: ai_result?.scale?.medium || {},
-          large: ai_result?.scale?.large || {},
+          small: {
+            workers: String(
+              ai_result?.scale?.small?.workers || ""
+            ),
+            investment: String(
+              ai_result?.scale?.small?.investment || ""
+            ),
+            revenue: String(
+              ai_result?.scale?.small?.revenue || ""
+            ),
+            profit: String(
+              ai_result?.scale?.small?.profit || ""
+            ),
+          },
+
+          medium: {
+            workers: String(
+              ai_result?.scale?.medium?.workers || ""
+            ),
+            investment: String(
+              ai_result?.scale?.medium?.investment || ""
+            ),
+            revenue: String(
+              ai_result?.scale?.medium?.revenue || ""
+            ),
+            profit: String(
+              ai_result?.scale?.medium?.profit || ""
+            ),
+          },
+
+          large: {
+            workers: String(
+              ai_result?.scale?.large?.workers || ""
+            ),
+            investment: String(
+              ai_result?.scale?.large?.investment || ""
+            ),
+            revenue: String(
+              ai_result?.scale?.large?.revenue || ""
+            ),
+            profit: String(
+              ai_result?.scale?.large?.profit || ""
+            ),
+          },
         },
       },
     });
@@ -78,12 +152,13 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
   }
 });
 
-
 router.get("/chat-history", authMiddleware, async (req, res) => {
   try {
-    const history = await chatHistory.find({
-      user: req.user._id,
-    });
+    const history = await chatHistory
+      .find({
+        user: req.user._id,
+      })
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -99,7 +174,6 @@ router.get("/chat-history", authMiddleware, async (req, res) => {
     });
   }
 });
-
 
 router.delete("/chat-history/:id", authMiddleware, async (req, res) => {
   try {
@@ -129,7 +203,6 @@ router.delete("/chat-history/:id", authMiddleware, async (req, res) => {
     });
   }
 });
-
 
 router.delete("/chat-history", authMiddleware, async (req, res) => {
   try {

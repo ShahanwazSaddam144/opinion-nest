@@ -122,6 +122,11 @@ const chatHistorySchema = new mongoose.Schema(
         default: "",
       },
 
+      future_summary: {
+        type: String,
+        default: "",
+      },
+
       past_yearly_analysis: {
         summary: {
           type: String,
