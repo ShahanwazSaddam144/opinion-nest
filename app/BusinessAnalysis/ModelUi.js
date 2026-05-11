@@ -33,7 +33,6 @@ const ModelUi = () => {
     setResult(null);
 
     try {
-      // Step 1: Call FastAPI to get AI prediction
       const aiRes = await fetch("https://api.business-model.buttnetworks.com/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -48,7 +47,6 @@ const ModelUi = () => {
 
       if (!aiRes.ok) throw new Error(aiPayload.message || "AI Server error");
 
-      // Step 2: Save to MongoDB via Express
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
