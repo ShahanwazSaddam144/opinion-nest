@@ -33,67 +33,24 @@ const ModelUi = () => {
     setResult(null);
 
     try {
-      const res = await fetch(
-        "https://api.business-model.buttnetworks.com/predict",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat-history`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          business_name: form.name,
+          business_industry: form.industry,
+          business_description: form.description,
+        }),
+      });
 
-      const data = await res.json();
+      const payload = await res.json();
 
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (!res.ok) throw new Error(payload.message || "Server error");
 
-      setResult(data);
+      const saved = payload.data;
 
-      await fetch(
-        "https://api.business-model.buttnetworks.com/api/chat-history",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            business_name: form.name,
-            business_industry: form.industry,
-            business_description: form.description,
-
-            ai_result: {
-              overview: data.description,
-              investment: data.investment,
-              workers: data.workers,
-              profit_range: data.profit?.range,
-              risk: data.risk,
-              scale_detected: data.scale_detected,
-
-              past_summary:
-                data.past_yearly_analysis?.summary || "",
-
-              future_summary:
-                data.future_summary || "",
-
-              past_yearly_analysis:
-                data.past_yearly_analysis?.data || [],
-
-              yearly_analysis:
-                data.yearly_analysis || [],
-
-              scale: {
-                small: data.scale?.small || {},
-                medium: data.scale?.medium || {},
-                large: data.scale?.large || {},
-              },
-            },
-          }),
-        }
-      );
+      setResult(saved.ai_result || null);
     } catch (err) {
       setError(err.message || "Something went wrong");
     }

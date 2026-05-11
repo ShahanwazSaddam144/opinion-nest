@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const chatHistory = require("../Database/chatHistory");
 const { authMiddleware } = require("../middleware/authMiddleware");
+const http = require("http");
+const https = require("https");
+const { URL } = require("url");
 
 router.post("/chat-history", authMiddleware, async (req, res) => {
   try {
@@ -23,13 +26,58 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
       });
     }
 
+    let finalAiResult = ai_result;
+
+    if (!finalAiResult) {
+      try {
+        const predictUrl = process.env.FASTAPI_URL || "http://localhost:8000/predict";
+        const urlObj = new URL(predictUrl);
+        const postData = JSON.stringify({ name: business_name, industry: business_industry, description: business_description });
+
+        finalAiResult = await new Promise((resolve, reject) => {
+          const lib = urlObj.protocol === "https:" ? https : http;
+
+          const options = {
+            hostname: urlObj.hostname,
+            port: urlObj.port || (urlObj.protocol === "https:" ? 443 : 80),
+            path: urlObj.pathname + (urlObj.search || ""),
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": Buffer.byteLength(postData),
+            },
+          };
+
+          const r = lib.request(options, (resp) => {
+            let body = "";
+            resp.on("data", (chunk) => (body += chunk));
+            resp.on("end", () => {
+              try {
+                const parsed = JSON.parse(body || "{}");
+                resolve(parsed);
+              } catch (e) {
+                reject(e);
+              }
+            });
+          });
+
+          r.on("error", (err) => reject(err));
+          r.write(postData);
+          r.end();
+        });
+      } catch (err) {
+        console.error("External Predict Error:", err);
+        finalAiResult = null;
+      }
+    }
+
     const formattedPastAnalysis =
-      ai_result?.past_yearly_analysis?.data ||
-      ai_result?.past_yearly_analysis ||
+      finalAiResult?.past_yearly_analysis?.data ||
+      finalAiResult?.past_yearly_analysis ||
       [];
 
     const formattedFutureAnalysis =
-      ai_result?.yearly_analysis || [];
+      finalAiResult?.yearly_analysis || [];
 
     const newChatHistory = new chatHistory({
       user: req.user._id,
@@ -41,38 +89,41 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
       ai_result: {
         overview:
-          ai_result?.overview ||
-          ai_result?.description ||
+          finalAiResult?.overview ||
+          finalAiResult?.description ||
           "",
 
         investment:
-          ai_result?.investment || "",
+          finalAiResult?.investment || "",
 
         workers:
-          String(ai_result?.workers || ""),
+          Number(finalAiResult?.workers || 0),
 
         profit_range:
-          ai_result?.profit_range ||
-          ai_result?.profit?.range ||
+          finalAiResult?.profit_range ||
+          finalAiResult?.profit?.range ||
           "",
 
         risk:
-          ai_result?.risk || "",
+          finalAiResult?.risk || "",
+
+        label:
+          finalAiResult?.label || "",
 
         scale_detected:
-          ai_result?.scale_detected || "",
+          finalAiResult?.scale_detected || "",
 
         past_summary:
-          ai_result?.past_summary ||
-          ai_result?.past_yearly_analysis?.summary ||
+          finalAiResult?.past_summary ||
+          finalAiResult?.past_yearly_analysis?.summary ||
           "",
 
         future_summary:
-          ai_result?.future_summary || "",
+          finalAiResult?.future_summary || "",
 
         past_yearly_analysis:
           formattedPastAnalysis.map((item) => ({
-            year: String(item.year),
+            year: Number(item.year),
             revenue: Number(item.revenue || 0),
             profit: Number(item.profit || 0),
             investment: Number(item.investment || 0),
@@ -80,7 +131,7 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
         yearly_analysis:
           formattedFutureAnalysis.map((item) => ({
-            year: String(item.year),
+            year: Number(item.year),
             revenue: Number(item.revenue || 0),
             profit: Number(item.profit || 0),
             investment: Number(item.investment || 0),
@@ -88,47 +139,47 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
         scale: {
           small: {
-            workers: String(
-              ai_result?.scale?.small?.workers || ""
+            workers: Number(
+              finalAiResult?.scale?.small?.workers || 0
             ),
-            investment: String(
-              ai_result?.scale?.small?.investment || ""
+            investment: Number(
+              finalAiResult?.scale?.small?.investment || 0
             ),
-            revenue: String(
-              ai_result?.scale?.small?.revenue || ""
+            revenue: Number(
+              finalAiResult?.scale?.small?.revenue || 0
             ),
-            profit: String(
-              ai_result?.scale?.small?.profit || ""
+            profit: Number(
+              finalAiResult?.scale?.small?.profit || 0
             ),
           },
 
           medium: {
-            workers: String(
-              ai_result?.scale?.medium?.workers || ""
+            workers: Number(
+              finalAiResult?.scale?.medium?.workers || 0
             ),
-            investment: String(
-              ai_result?.scale?.medium?.investment || ""
+            investment: Number(
+              finalAiResult?.scale?.medium?.investment || 0
             ),
-            revenue: String(
-              ai_result?.scale?.medium?.revenue || ""
+            revenue: Number(
+              finalAiResult?.scale?.medium?.revenue || 0
             ),
-            profit: String(
-              ai_result?.scale?.medium?.profit || ""
+            profit: Number(
+              finalAiResult?.scale?.medium?.profit || 0
             ),
           },
 
           large: {
-            workers: String(
-              ai_result?.scale?.large?.workers || ""
+            workers: Number(
+              finalAiResult?.scale?.large?.workers || 0
             ),
-            investment: String(
-              ai_result?.scale?.large?.investment || ""
+            investment: Number(
+              finalAiResult?.scale?.large?.investment || 0
             ),
-            revenue: String(
-              ai_result?.scale?.large?.revenue || ""
+            revenue: Number(
+              finalAiResult?.scale?.large?.revenue || 0
             ),
-            profit: String(
-              ai_result?.scale?.large?.profit || ""
+            profit: Number(
+              finalAiResult?.scale?.large?.profit || 0
             ),
           },
         },
@@ -139,7 +190,7 @@ router.post("/chat-history", authMiddleware, async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Chat History Saved",
+      data: newChatHistory,
     });
 
   } catch (err) {
